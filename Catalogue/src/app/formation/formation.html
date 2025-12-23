@@ -1,11 +1,17 @@
 <div class="container">
-
-  <div class="header">
+  <div class="header-with-buttons">
     <h2>Gestion des Formations</h2>
-    <button class="btn-add" (click)="openModal()">
-      <span>+</span> Ajouter une formation
-    </button>
+    <div class="buttons-container">
+      <button class="btn-add" (click)="openModal()">
+        <span>+</span> Ajouter une formation
+      </button>
+      <button class="btn-add" (click)="downloadFormations()">
+        Télécharger Excel
+      </button>
+    </div>
   </div>
+
+
 
   <!-- TABLEAU FORMATIONS -->
   <table class="table">
@@ -246,5 +252,97 @@
       </div>
 
     </form>
+  </div>
+</div>
+<div class="modal-backdrop guide-overlay" *ngIf="welcomeModalOpen">
+  <div class="modal guide-modal-clean">
+
+    <!-- HEADER -->
+    <div class="guide-header-clean">
+      <h2>Guide d’utilisation</h2>
+      <p>Gestion des formations</p>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-clean">
+      <div
+        class="progress-fill"
+        [style.width.%]="(currentGuideStep / totalGuideSteps) * 100">
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="guide-content-clean">
+
+      <!-- STEP 1 -->
+      <div *ngIf="currentGuideStep === 1" class="step-clean">
+        <h3>Bienvenue</h3>
+        <p>
+          Cette interface vous permet de gérer les formations
+          selon votre rôle et leur état de validation.
+        </p>
+      </div>
+
+      <!-- STEP 2 -->
+      <div *ngIf="currentGuideStep === 2" class="step-clean">
+
+        <!-- ADMIN -->
+        <div *ngIf="userRole === 'admin'" class="role-card-clean admin">
+          <h4>Administrateur</h4>
+          <ul>
+            <li>Créer, modifier et supprimer toutes les formations</li>
+            <li>Valider les formations proposées par les formateurs</li>
+            <li>Superviser la cohérence pédagogique</li>
+          </ul>
+        </div>
+
+        <!-- FORMATEUR -->
+        <div *ngIf="userRole === 'formateur'" class="role-card-clean formateur">
+          <h4>Formateur</h4>
+          <ul>
+            <li>Créer une formation</li>
+            <li>Modifier ou supprimer une formation</li>
+            <li>Uniquement si son statut est « en attente »</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- STEP 3 -->
+      <div *ngIf="currentGuideStep === 3" class="step-clean">
+        <h3>Bonnes pratiques</h3>
+        <ul>
+          <li>Définissez des objectifs clairs</li>
+          <li>Associez des compétences mesurables</li>
+          <li>Vérifiez les informations avant validation</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="guide-footer-clean">
+      <button
+        class="btn-secondary"
+        (click)="previousStep()"
+        [disabled]="currentGuideStep === 1">
+        Précédent
+      </button>
+
+      <button
+        class="btn-primary"
+        *ngIf="currentGuideStep < totalGuideSteps"
+        (click)="nextStep()">
+        Suivant
+      </button>
+
+      <button
+        class="btn-primary"
+        *ngIf="currentGuideStep === totalGuideSteps"
+        (click)="closeWelcomeModal()">
+        Commencer
+      </button>
+    </div>
+
   </div>
 </div>

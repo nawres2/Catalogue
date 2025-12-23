@@ -1,20 +1,123 @@
 import { db } from "../db.js";
+import { Router } from 'express';
+import ExcelJS from "exceljs";
+
+export const downloadExcel = async (req, res) => {
+  try {
+    const [formations] = await db.query(`
+      SELECT f.*, CONCAT(u.prenom, ' ', u.nom) AS formateur
+      FROM formation f
+      LEFT JOIN users u ON f.id_formateur = u.id_user
+    `);
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Formations");
+
+    sheet.columns = [
+      { header: 'Intitulé', key: 'intitule', width: 25 },
+      { header: 'Axe', key: 'axe', width: 15 },
+      { header: 'Axe Code', key: 'axe_code', width: 12 },
+      { header: 'Population', key: 'population', width: 15 },
+      { header: 'Niveau', key: 'niveau', width: 12 },
+      { header: 'Prérequis', key: 'prerequis', width: 25 },
+      { header: 'Formateur', key: 'formateur', width: 20 },
+      { header: 'Interne / Externe', key: 'interne_externe', width: 15 },
+      { header: 'Parcours', key: 'parcours', width: 15 },
+      { header: 'Durée', key: 'duree', width: 10 },
+      { header: 'État', key: 'etat', width: 12 },
+      { header: 'Prestataire', key: 'prestataire', width: 20 },
+      { header: 'Objectifs', key: 'objectifs', width: 50 },
+      { header: 'Compétences', key: 'competences', width: 50 },
+    ];
+
+    // Style pour l'en-tête
+    sheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+
+    // Colonnes qui nécessitent un retour à la ligne automatique
+    const wrapTextColumns = ['intitule', 'prerequis', 'objectifs', 'competences', 'prestataire'];
+
+    for (const f of formations) {
+      const [objectifRows] = await db.query(`
+        SELECT o.libelle
+        FROM formation_objectif fo
+        JOIN objectif o ON fo.id_objectif = o.id_objectif
+        WHERE fo.id_formation = ?
+      `, [f.id_formation]);
+      const objectifs = objectifRows.map(o => o.libelle).join('\n');
+
+      const [competenceRows] = await db.query(`
+        SELECT c.libelle
+        FROM formation_competence fc
+        JOIN competence c ON fc.id_competence = c.id_competence
+        WHERE fc.id_formation = ?
+      `, [f.id_formation]);
+      const competences = competenceRows.map(c => c.libelle).join('\n');
+
+      const row = sheet.addRow({
+        intitule: f.intitule,
+        axe: f.axe,
+        axe_code: f.axe_code || '',
+        population: f.population,
+        niveau: f.niveau,
+        prerequis: f.prerequis,
+        formateur: f.formateur,
+        interne_externe: f.interne_externe,
+        parcours: f.parcours,
+        duree: f.duree,
+        etat: f.statut || f.etat || '',
+        prestataire: f.prestataire || '',
+        objectifs,
+        competences
+      });
+
+      // Appliquer le style pour chaque cellule
+      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        const key = sheet.getColumn(colNumber).key;
+
+        if (wrapTextColumns.includes(key)) {
+          // Colonnes longues : retour à la ligne, alignement en haut et à gauche
+          cell.alignment = { wrapText: true, vertical: 'top', horizontal: 'left' };
+        } else {
+          // Autres colonnes : centré
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        }
+      });
+    }
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=formations.xlsx"
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur génération Excel" });
+  }
+};
 
 export const getFormationById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // 1) Formation principale
-   const [formationRows] = await db.query(
-  `SELECT 
-      f.*, 
-      CONCAT(u.prenom, ' ', u.nom) AS formateur
-   FROM formation f
-   LEFT JOIN users u ON f.id_formateur = u.id_user
-   WHERE f.id_formation = ?`,
-  [id]
-);
-
+    const [formationRows] = await db.query(
+      `SELECT 
+        f.*, 
+        CONCAT(u.prenom, ' ', u.nom) AS formateur
+       FROM formation f
+       LEFT JOIN users u ON f.id_formateur = u.id_user
+       WHERE f.id_formation = ?`,
+      [id]
+    );
 
     if (formationRows.length === 0) {
       return res.status(404).json({ message: "Formation not found" });
@@ -22,7 +125,6 @@ export const getFormationById = async (req, res) => {
 
     const formation = formationRows[0];
 
-    // 2) Objectifs
     const [objectifRows] = await db.query(
       `SELECT o.libelle 
        FROM formation_objectif fo
@@ -31,7 +133,6 @@ export const getFormationById = async (req, res) => {
       [id]
     );
 
-    // 3) Compétences
     const [competenceRows] = await db.query(
       `SELECT c.libelle 
        FROM formation_competence fc
@@ -40,7 +141,6 @@ export const getFormationById = async (req, res) => {
       [id]
     );
 
-    // 4) Pack final
     const response = {
       ...formation,
       objectifs: objectifRows.map(o => o.libelle),
@@ -54,6 +154,10 @@ export const getFormationById = async (req, res) => {
     res.status(500).json({ message: "Server error." });
   }
 };
+
+
+
+
 export const getFormations = async (req, res) => {
   try {
     const [rows] = await db.query(`

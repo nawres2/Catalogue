@@ -14,7 +14,7 @@
 /* ----------------------------- */
 .header {
   display: flex;
-  justify-content: space-between;
+  /*-justify-content: space-between;*/
   align-items: center;
   margin-bottom: 25px;
 }
@@ -28,8 +28,24 @@ h2 {
 /* ----------------------------- */
 /*       BOUTON AJOUTER         */
 /* ----------------------------- */
+.header-with-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-with-buttons h2 {
+  margin: 0;
+}
+
+.buttons-container {
+  display: flex;
+  gap: 10px;
+}
+
 .btn-add {
-  background-color: #8AA73D; /* vert Teamwill */
+  background-color: #8AA73D;
   color: white;
   border: none;
   padding: 10px 18px;
@@ -44,7 +60,7 @@ h2 {
 }
 
 .btn-add:hover {
-  background-color: #6E872F; /* vert plus foncé */
+  background-color: #6E872F;
 }
 
 /* ----------------------------- */
@@ -256,4 +272,474 @@ tbody tr:last-child {
   overflow-y: auto;
 }
 
+.guide-card {
+  background-color: #F7F9F3; /* très léger vert/blanc */
+  border-left: 6px solid #8AA73D; /* vert Teamwill */
+  padding: 20px 25px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
 
+.guide-card:hover {
+  transform: translateY(-2px);
+}
+
+.guide-title {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #3C3C3C;
+}
+
+.guide-content {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+.guide-content li {
+  margin-bottom: 8px;
+}
+
+
+/* ================= GUIDE MODAL ================= */
+
+.guide-modal {
+  max-width: 700px;
+}
+
+.guide-header {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* STEPPER */
+.stepper {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.step {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #E0E0E0;
+  color: #777;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.step.active {
+  background: #8AA73D;
+  color: white;
+}
+
+/* CONTENU STEP */
+.step-content {
+  text-align: center;
+  padding: 10px 20px;
+}
+
+.step-content h3 {
+  margin-bottom: 12px;
+  color: #3C3C3C;
+}
+
+.step-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.step-content li {
+  padding: 6px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+/* ACTIONS */
+.guide-actions {
+  justify-content: space-between;
+}
+/* ===== GUIDE MODAL PREMIUM ===== */
+
+.guide-modal {
+  max-width: 720px;
+  padding: 30px;
+}
+
+.guide-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.guide-header p {
+  font-size: 14px;
+  color: #777;
+}
+
+/* STEPPER */
+.stepper-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.stepper-line::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #E0E0E0;
+  z-index: 0;
+}
+
+.step-wrapper {
+  text-align: center;
+  z-index: 1;
+}
+
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #E0E0E0;
+  color: #777;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.step-circle.active {
+  background: #8AA73D;
+  color: white;
+}
+
+.step-label {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #555;
+}
+
+/* CONTENT CARD */
+.guide-content-card {
+  background: #F7F9F3;
+  padding: 25px;
+  border-radius: 14px;
+  min-height: 180px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+/* ROLE CARDS */
+.role-card {
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.role-card.admin {
+  border-left: 5px solid #8AA73D;
+}
+
+.role-card.formateur {
+  border-left: 5px solid #3C3C3C;
+}
+
+/* ANIMATION */
+.fade-slide {
+  animation: fadeSlide 0.4s ease;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ACTIONS */
+.guide-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.btn-primary {
+  background: #8AA73D;
+  border: none;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 8px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+/* ===== OVERLAY ===== */
+.guide-overlay {
+  backdrop-filter: blur(6px);
+}
+
+/* ===== MODAL ===== */
+.guide-modal-ux {
+  max-width: 680px;
+  padding: 35px;
+  position: relative;
+}
+
+/* CLOSE */
+.guide-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #999;
+}
+
+/* HEADER */
+.guide-top {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.guide-top h2 {
+  font-size: 22px;
+}
+
+.guide-top p {
+  font-size: 14px;
+  color: #777;
+}
+
+/* PROGRESS */
+.progress-container {
+  height: 6px;
+  background: #E6E6E6;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #8AA73D, #6E872F);
+  transition: width 0.4s ease;
+}
+
+/* BODY */
+.guide-body {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* STEP */
+.step-ux {
+  text-align: center;
+  animation: fadeUp 0.4s ease;
+}
+
+/* ICON */
+.icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #F2F6EA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin: 0 auto 15px;
+}
+
+/* ROLE */
+.role-ux {
+  text-align: center;
+}
+
+.role-ux ul {
+  list-style: none;
+  padding: 0;
+}
+
+.role-ux li {
+  margin: 8px 0;
+  color: #555;
+}
+
+.role-ux.admin .icon-circle {
+  background: #EAF2D3;
+}
+
+.role-ux.formateur .icon-circle {
+  background: #F0F0F0;
+}
+
+/* FOOTER */
+.guide-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.btn-main {
+  background: #8AA73D;
+  color: white;
+  border: none;
+  padding: 9px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 9px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* ANIMATION */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* ===== MODAL CLEAN ===== */
+.guide-modal-clean {
+  max-width: 640px;
+  padding: 32px;
+}
+
+/* HEADER */
+.guide-header-clean {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.guide-header-clean p {
+  font-size: 13px;
+  color: #888;
+}
+
+/* PROGRESS */
+.progress-clean {
+  height: 4px;
+  background: #E5E5E5;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #8AA73D;
+  transition: width 0.35s ease;
+}
+
+/* CONTENT */
+.guide-content-clean {
+  min-height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-clean {
+  text-align: center;
+  animation: fadeInUp 0.35s ease;
+}
+
+.step-clean p {
+  color: #555;
+}
+
+/* ROLE CARD */
+.role-card-clean {
+  padding: 22px;
+  border-radius: 12px;
+  background: #F8F8F8;
+}
+
+.role-card-clean.admin {
+  border-left: 4px solid #8AA73D;
+}
+
+.role-card-clean.formateur {
+  border-left: 4px solid #444;
+}
+
+.role-card-clean ul {
+  list-style: none;
+  padding: 0;
+}
+
+.role-card-clean li {
+  margin: 8px 0;
+  color: #555;
+}
+
+/* FOOTER */
+.guide-footer-clean {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+/* BUTTONS */
+.btn-primary {
+  background: #8AA73D;
+  color: white;
+  border: none;
+  padding: 9px 22px;
+  border-radius: 10px;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 9px 22px;
+  border-radius: 10px;
+}
+
+/* ANIMATION */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

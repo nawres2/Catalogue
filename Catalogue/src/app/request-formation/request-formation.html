@@ -1,0 +1,148 @@
+<div class="container">
+
+  <div class="header">
+    <h2>Formations en Attente de Validation</h2>
+    <span class="count-badge">{{ formationRequests.length }} formation(s)</span>
+  </div>
+
+  <!-- Message si aucune demande -->
+  <div *ngIf="formationRequests.length === 0" class="no-requests">
+    <p>Aucune formation en attente de validation</p>
+  </div>
+
+  <!-- TABLEAU FORMATIONS -->
+  <table *ngIf="formationRequests.length > 0" class="table">
+    <thead>
+      <tr>
+        <th>Intitulé</th>
+        <th>Axe</th>
+        <th>Niveau</th>
+        <th>Population</th>
+        <th>Formateur</th>
+        <th>Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let request of formationRequests; trackBy: trackFormation" (click)="openDetailModal(request)" style="cursor: pointer;">
+            <td>{{ request.intitule }}</td>
+            <td>
+                <div>{{ request.axe }}</div>
+                <small *ngIf="request.axe_code" style="color: #666;">{{ request.axe_code }}</small>
+            </td>
+            <td>
+                <span class="badge" [ngClass]="request.niveau">{{ request.niveau }}</span>
+            </td>
+            <td>{{ request.population || 'Non spécifié' }}</td>
+            <td>
+                <span *ngIf="request.nom_formateur; else noFormateur">
+                {{ request.nom_formateur }} {{ request.prenom_formateur }}
+                </span>
+                <ng-template #noFormateur>
+                <span style="color: #999;">Non assigné</span>
+                </ng-template>
+            </td>
+            <td>
+                <span class="badge-type" [ngClass]="request.interne_externe || 'non-defini'">
+                {{ request.interne_externe || 'Non défini' }}
+                </span>
+            </td>
+            
+            </tr>
+
+    </tbody>
+  </table>
+</div>
+
+<!-- ================= MODAL DÉTAILS ================= -->
+<div *ngIf="detailModalOpen && selectedRequest" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Détails de la Formation</h2>
+      <button class="close-btn" (click)="closeDetailModal()">✕</button>
+    </div>
+
+    <div class="modal-content">
+      <!-- INFORMATIONS GÉNÉRALES -->
+      <div class="section">
+        <h3>Informations générales</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Intitulé :</span>
+            <span class="value">{{ selectedRequest.intitule }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Axe :</span>
+            <span class="value">{{ selectedRequest.axe }}</span>
+          </div>
+          <div class="info-item" *ngIf="selectedRequest.axe_code">
+            <span class="label">Code Axe :</span>
+            <span class="value">{{ selectedRequest.axe_code }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Niveau :</span>
+            <span class="badge" [ngClass]="selectedRequest.niveau">{{ selectedRequest.niveau }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Population :</span>
+            <span class="value">{{ selectedRequest.population || 'Non spécifié' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Type :</span>
+            <span class="value">{{ selectedRequest.interne_externe || 'Non spécifié' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMATEUR -->
+      <div class="section" *ngIf="selectedRequest.id_formateur">
+        <h3>Formateur</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Nom :</span>
+            <span class="value">{{ selectedRequest.nom_formateur }} {{ selectedRequest.prenom_formateur }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="section" *ngIf="selectedRequest.description">
+        <h3>Description</h3>
+        <p class="text-content">{{ selectedRequest.description }}</p>
+      </div>
+
+      <!-- PRÉREQUIS -->
+      <div class="section" *ngIf="selectedRequest.prerequis">
+        <h3>Prérequis</h3>
+        <p class="text-content">{{ selectedRequest.prerequis }}</p>
+      </div>
+
+      <!-- OBJECTIFS -->
+      <div class="section">
+        <h3>Objectifs pédagogiques</h3>
+        <ul *ngIf="objectifsArray.length > 0; else noObjectifs">
+          <li *ngFor="let obj of objectifsArray; trackBy: trackObjectif">{{ obj.libelle }}</li>
+        </ul>
+        <ng-template #noObjectifs>
+          <p class="no-data">Aucun objectif défini</p>
+        </ng-template>
+      </div>
+
+      <!-- COMPÉTENCES -->
+      <div class="section">
+        <h3>Compétences visées</h3>
+        <ul *ngIf="competencesArray.length > 0; else noCompetences">
+          <li *ngFor="let comp of competencesArray; trackBy: trackCompetence">{{ comp.libelle }}</li>
+        </ul>
+        <ng-template #noCompetences>
+          <p class="no-data">Aucune compétence définie</p>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="modal-actions">
+      <button type="button" class="btn-refuse" (click)="refuserFormation()">❌ Refuser</button>
+      <button type="button" class="btn-validate" (click)="validerFormation()">✅ Valider</button>
+    </div>
+  </div>
+</div>

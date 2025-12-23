@@ -1,5 +1,6 @@
 import express from "express";
 import { getFormationById,getFormations ,addFormation,getFormateurs,deleteFormation,updateFormation,getObjectifs,addObjectif,getCompetences,addCompetence} from "../Controller/formation.controller.js";
+import { downloadExcel } from "../Controller/formation.controller.js";
 
 const router = express.Router();
  
@@ -15,4 +16,6 @@ router.get('/objectifs', getObjectifs);
 router.post('/objectif', addObjectif);
 router.get('/competences', getCompetences);
 router.post('/competence', addCompetence);
+router.get("/download", downloadExcel);
+
 export default router;

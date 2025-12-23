@@ -1,9 +1,7 @@
-
-
 <div class="layout">
-  <app-sidebar></app-sidebar>
+  <app-sidebar [class.closed]="!isSidebarOpen"></app-sidebar>
 
-  <main class="content">
+  <main class="content" [class.expanded]="!isSidebarOpen">
     <router-outlet></router-outlet>
   </main>
 </div>

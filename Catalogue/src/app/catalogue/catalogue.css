@@ -9,7 +9,312 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   overflow: hidden;
 }
+/* ========== TRADUCTION ========== */
 
+/* Sélecteur de langue */
+.language-selector {
+  display: flex;
+  gap: 8px;
+  margin: 15px 0;
+  justify-content: center;
+}
+
+.lang-button {
+  padding: 8px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 20px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.lang-button:hover:not(:disabled) {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+}
+
+.lang-button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.lang-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Indicateur de traduction */
+.translating-indicator {
+  padding: 10px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  color: #667eea;
+  font-weight: 500;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #667eea;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+/* ================= LANGUAGE SELECTION MODAL ================= */
+.language-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.5s ease;
+}
+
+.language-modal {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 30px;
+  padding: 60px 50px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  animation: slideUp 0.6s ease;
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.modal-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 15px;
+}
+
+.modal-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+.language-options {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.language-option-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 25px 30px;
+  background: white;
+  border: 3px solid transparent;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.language-option-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+  border-color: #667eea;
+}
+
+.language-option-btn .flag {
+  font-size: 3rem;
+}
+
+.language-option-btn .lang-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  flex: 1;
+  text-align: center;
+}
+
+.language-option-btn .arrow {
+  font-size: 1.5rem;
+  color: #667eea;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+}
+
+.language-option-btn:hover .arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+/* Overlay sombre */
+.language-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+/* Popup box */
+.language-modal {
+  background: #fff;
+  padding: 30px;
+  border-radius: 20px;
+  width: 450px;
+  max-width: 95%;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,.25);
+  animation: popupScale .4s ease;
+}
+
+/* animation */
+@keyframes popupScale {
+  from { transform: scale(.7); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.modal-title {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.modal-subtitle {
+  color: #777;
+  margin-bottom: 25px;
+}
+
+/* Boutons langues */
+.language-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.logo-france{
+  width: 50px;
+  height: 50px;
+}
+.logo-anglais{
+  width: 50px;
+  height: 50px;
+}
+.language-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* Couche sombre + flou puissant */
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+
+.language-option-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: .3s;
+  font-size: 16px;
+}
+
+.language-option-btn:hover {
+  background: #007bff;
+  color: white;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  width: 300px;
+}
+
+.language-buttons button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 /* ================= COVER PAGE STYLES ================= */
 .cover-page {
   position: fixed;

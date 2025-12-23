@@ -67,20 +67,20 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular/build:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "Catalogue:build:production"
+            "builder": "@angular/build:dev-server",
+            "options": {
+"proxyConfig": "proxy.config.json"
             },
-            "development": {
-              "buildTarget": "Catalogue:build:development"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
-        "test": {
-          "builder": "@angular/build:unit-test"
-        }
+            "configurations": {
+              "production": {
+                "buildTarget": "Catalogue:build:production"
+              },
+              "development": {
+                "buildTarget": "Catalogue:build:development"
+              }
+            },
+            "defaultConfiguration": "development"
+          }
       }
     }
   }

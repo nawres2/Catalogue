@@ -22,5 +22,7 @@ export class App {
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
   }
+
   
 }
+

@@ -28,6 +28,9 @@ export class AuthLogin {
     });
   }
 
+
+  
+
 onSubmit() {
   if (this.loginForm.invalid) {
     Swal.fire({
@@ -43,12 +46,18 @@ onSubmit() {
 
   this.authService.login(email, password).subscribe({
     next: (res: any) => {
+      // Sauvegarde du token
       this.authService.saveToken(res.token);
+
+      // Stocker le rôle de l'utilisateur pour le front
+      const role = res.user.id_role === 1 ? 'admin' : 'formateur';
+      localStorage.setItem('userRole', role);
+
       if (remember) this.authService.saveToken(res.token);
 
       Swal.fire({
         icon: 'success',
-        title: 'Welcome ',
+        title: 'Welcome',
         text: 'Login avec success.',
         timer: 1500,
         showConfirmButton: false
@@ -67,5 +76,6 @@ onSubmit() {
     }
   });
 }
+
 
 }

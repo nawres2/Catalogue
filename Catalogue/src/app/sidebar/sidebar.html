@@ -23,23 +23,31 @@
   <nav class="menu">
  
     <a routerLink="/catalogue"  routerLinkActive="active">
-      <i class="icon"><img style="height: 20px; width: 20px;"  src="https://cdn-icons-png.flaticon.com/512/3486/3486568.png"></i>
+      <i class="icon"><img style="height: 25px; width: 25px;"  src="https://cdn-icons-png.flaticon.com/512/3486/3486568.png"></i>
       <span *ngIf="sidebarOpen">Catalogue</span>
     </a>
  
     <a routerLink="/formation"   routerLinkActive="active">
-      <i class="icon"><img style="height: 20px; width: 20px;"  src="https://cdn-icons-png.flaticon.com/512/4192/4192781.png"></i>
+      <i class="icon"><img style="height: 30px; width: 30px;"  src="https://cdn-icons-png.flaticon.com/512/4192/4192781.png"></i>
       <span *ngIf="sidebarOpen">Formations</span>
     </a>
   <a routerLink="/users"  routerLinkActive="active">
-      <i class="icon"><img style="height: 20px; width: 20px;"  src="https://p7.hiclipart.com/preview/442/477/305/computer-icons-user-profile-avatar-profile.jpg"></i>
+      <i class="icon"><img style="height: 20px; width: 20px;"  src="../../assets/user_icon.png"></i>
       <span *ngIf="sidebarOpen">Utilisateurs</span>
     </a>
+    <a routerLink="/formation_demande"  routerLinkActive="active">
+      <i class="icon"><img style="height: 20px; width: 20px;"  src="https://cdn-icons-png.flaticon.com/512/2516/2516759.png"></i>
+      <span *ngIf="sidebarOpen">Formations en attente</span>
+    </a>
+
+    
+
+    
    
  
 <a (click)="logout()" class="logout-button">
   <i class="icon">
-    <img style="height: 20px; width: 20px;" src="https://cdn-icons-png.flaticon.com/512/1828/1828479.png">
+    <img style="height: 20px; width: 20px;" src="https://cdn-icons-png.flaticon.com/512/876/876779.png">
   </i>
   <span *ngIf="sidebarOpen">Déconnexion</span>
 </a>
