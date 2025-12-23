@@ -51,7 +51,18 @@
         <input type="text" [(ngModel)]="editUser.prenom" name="edit_prenom" required>
 
         <label>Email :</label>
-        <input type="email" [(ngModel)]="editUser.email" name="edit_email" required>
+         <input
+  type="email"
+  [(ngModel)]="newUser.email"
+  name="email"
+  #email="ngModel"
+  required
+  pattern="^[a-zA-Z0-9._%+-]+@teamwillgroup\.com$"
+/>
+
+<div *ngIf="email.invalid && email.touched">
+  Only @teamwillgroup.com emails are allowed
+</div>
 
         <label>Rôle :</label>
         <select [(ngModel)]="editUser.id_role" name="edit_role" required>
@@ -92,7 +103,18 @@
         <input type="text" [(ngModel)]="newUser.prenom" name="prenom" required>
 
         <label>Email :</label>
-        <input type="email" [(ngModel)]="newUser.email" name="email" required>
+          <input
+  type="email"
+  [(ngModel)]="newUser.email"
+  name="email"
+  #email="ngModel"
+  required
+  pattern="^[a-zA-Z0-9._%+-]+@teamwillgroup\.com$"
+/>
+
+<div *ngIf="email.invalid && email.touched">
+  Only @teamwillgroup.com emails are allowed
+</div>
 
         <label>Rôle :</label>
         <select [(ngModel)]="newUser.id_role" name="role" required>

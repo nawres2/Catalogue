@@ -3,16 +3,20 @@ import formationRoutes from "./Routes/formation.routes.js";
 import authRoutes from "./Routes/auth.routes.js";
 import dotenv from "dotenv";
 import userRoutes from "./Routes/user.routes.js";
-import formationValidationRoutes from "./Routes/formation_request.routes.js"; // ✅ NOUVEAU
 import formationRequestRoutes from './Routes/formation_request.routes.js';
 
 import cors from 'cors';
-
 const app = express();
+
 
 // ============ MIDDLEWARE ============
 app.use(express.json());
-app.use(cors());
+
+
+app.use(cors({
+  origin: 'http://localhost:4200', // Angular frontend
+  credentials: true                // allows cookies/auth headers
+}));
 dotenv.config();
 
 // ============ ROUTES ============
@@ -27,8 +31,7 @@ app.use("/api", formationRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', formationRequestRoutes);
 
-// ✅ NOUVELLE ROUTE pour la validation des formations
-app.use('/api', formationValidationRoutes);
+
 
 // ============ GESTION DES ERREURS ============
 // Gestion 404

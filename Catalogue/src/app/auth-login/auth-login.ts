@@ -4,11 +4,13 @@ import { NgIf } from '@angular/common';
 import { AuthService } from '../service/auth-service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { RouterModule } from '@angular/router';
+
 
 @Component({
   selector: 'app-auth-login',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf], // <-- add NgIf here
+  imports: [ReactiveFormsModule, NgIf,RouterModule], // <-- add NgIf here
   templateUrl: './auth-login.html',
   styleUrls: ['./auth-login.css']
 })
@@ -22,7 +24,14 @@ export class AuthLogin {
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: [
+    '',
+    [
+      Validators.required,
+      Validators.email,
+      Validators.pattern(/^[a-zA-Z0-9._%+-]+@teamwillgroup\.com$/)
+    ]
+  ],
       password: ['', Validators.required],
       remember: [false]
     });

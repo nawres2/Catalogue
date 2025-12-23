@@ -32,9 +32,9 @@ getToken() {
   return this.http
     .post<any>('http://localhost:3000/api/auth/login', { email, password })
     .pipe(
-      tap(res => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('role', res.user.role);
+      tap(res => { 
+  localStorage.setItem('token', res.token);
+  localStorage.setItem('role', res.user.id_role.toString()); // <-- store numeric role
       })
     );
 }
@@ -68,6 +68,20 @@ getToken() {
   getRoles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/roles`);
   }
+getRole(): string | null {
+  if (typeof window !== 'undefined') {
+    const role = localStorage.getItem('role');
+    return role ? role.trim().toLowerCase() : null;
+  }
+  return null;
+}
+
+
+hasRole(roleId: string | number): boolean {
+  return this.getRole() === roleId.toString();
+}
+
+
 
   // ===================== ADD USER =====================
   addUser(user: any): Observable<any> {
@@ -83,4 +97,5 @@ getToken() {
   deleteUser(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/user/${id}`);
   }
+
 }

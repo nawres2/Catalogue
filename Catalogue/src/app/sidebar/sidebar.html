@@ -17,8 +17,18 @@
     </div>
  
 <button class="btn-close" (click)="toggle()">
-      <img style="width: 20px;height: 20px;" src="https://th.bing.com/th/id/R.bbf7690673958d2d3e2553210397ea41?rik=cjjS9vY1rHKJsA&pid=ImgRaw&r=0">
-    </button>
+  <!-- Image quand sidebar est ouverte -->
+  <img *ngIf="sidebarOpen"
+       style="width: 70px; height: 70px;"
+       src="../../assets/icon menu_ferme.png" 
+       alt="Fermer">
+
+  <!-- Image quand sidebar est fermée -->
+  <img *ngIf="!sidebarOpen"
+       style="width: 70px; height: 70px;"
+       src="../../assets/icon menu_ouvert.png" 
+       alt="Ouvrir">
+</button>
  </div>
   <nav class="menu">
  
@@ -27,18 +37,28 @@
       <span *ngIf="sidebarOpen">Catalogue</span>
     </a>
  
-    <a routerLink="/formation"   routerLinkActive="active">
+    <a routerLink="/formation" *ngIf="isAdmin()"  routerLinkActive="active">
       <i class="icon"><img style="height: 30px; width: 30px;"  src="https://cdn-icons-png.flaticon.com/512/4192/4192781.png"></i>
       <span *ngIf="sidebarOpen">Formations</span>
     </a>
-  <a routerLink="/users"  routerLinkActive="active">
+  <a routerLink="/users" *ngIf="isAdmin()" routerLinkActive="active">
       <i class="icon"><img style="height: 20px; width: 20px;"  src="../../assets/user_icon.png"></i>
       <span *ngIf="sidebarOpen">Utilisateurs</span>
     </a>
-    <a routerLink="/formation_demande"  routerLinkActive="active">
+    <a routerLink="/formation_demande"  *ngIf="isAdmin()" routerLinkActive="active">
       <i class="icon"><img style="height: 20px; width: 20px;"  src="https://cdn-icons-png.flaticon.com/512/2516/2516759.png"></i>
       <span *ngIf="sidebarOpen">Formations en attente</span>
     </a>
+       <a routerLink="/formateur" *ngIf="isFormateur()" routerLinkActive="active">
+      <i class="icon"><img style="height: 20px; width: 20px;"  src="https://th.bing.com/th/id/OIP.BLAsMSijkDa1DYDnw-_crAHaHa?w=194&h=194&c=7&r=0&o=7&cb=ucfimg2&dpr=1.3&pid=1.7&rm=3&ucfimg=1"></i>
+      <span *ngIf="sidebarOpen">Formulaire</span>
+    </a>
+       <a routerLink="/historique" *ngIf="isFormateur()" routerLinkActive="active">
+      <i class="icon"><img style="height: 20px; width: 20px;"  src="https://cdn-icons-png.flaticon.com/512/61/61122.png"></i>
+      <span *ngIf="sidebarOpen">Historique</span>
+    </a>
+ 
+    
 
     
 
@@ -57,4 +77,3 @@
   </nav>
  
 </aside>
- 

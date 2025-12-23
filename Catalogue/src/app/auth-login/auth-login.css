@@ -143,3 +143,26 @@ button:hover {
   margin-top: 30px;
   color: #fff;
 }
+.icon-button {
+  position: fixed;        /* stays visible on scroll */
+  top: 20px;
+  right: 20px;
+
+
+  cursor: pointer;
+  padding: 8px;
+
+  color: #8AA73D;
+  transition: transform 0.2s ease, color 0.2s ease;
+  z-index: 1000;          /* stays above everything */
+}
+
+.icon-button:hover {
+  transform: translateX(3px);
+  color: #8AA73D;
+}
+
+.icon-button svg {
+  width: 30px;
+  height: 30px;
+}

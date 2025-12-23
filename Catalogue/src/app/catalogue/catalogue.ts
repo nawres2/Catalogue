@@ -5,6 +5,8 @@ import { FormationService } from '../service/formation-service';
 import { HttpClientModule } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { TranslationService } from '../service/translation.service';
+import { RouterModule } from '@angular/router';
+
 
 declare var $: any;
 declare var google: any;
@@ -39,7 +41,7 @@ interface GroupedParcours {
 @Component({
   selector: 'app-catalogue',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule,RouterModule],
   templateUrl: './catalogue.html',
   styleUrls: ['./catalogue.css']
 })
@@ -57,9 +59,9 @@ selectLanguage(lang: 'fr' | 'en') {
     this.translations = {
       catalogueTitle: 'Catalogue des formations',
       welcomeSubtitle: 'Découvrez nos formations',
-      feature1: 'Feature 1',
-      feature2: 'Feature 2',
-      feature3: 'Feature 3',
+      feature1: 'Thématiques Inspirantes ',
+      feature2: 'Formats Variés',
+      feature3: 'Compétences clés au rendez-vous',
       startButton: 'Commencer',
       page: 'Page',
       formations: 'Formations',
@@ -109,9 +111,9 @@ selectLanguage(lang: 'fr' | 'en') {
   translations: any = {
   catalogueTitle: 'Catalogue des formations',
   welcomeSubtitle: 'Découvrez nos formations',
-  feature1: 'Feature 1',
-  feature2: 'Feature 2',
-  feature3: 'Feature 3',
+  feature1: 'Thématiques Inspirantes ',
+  feature2: 'Formats Variés',
+  feature3: 'Compétences clés au rendez-vous',
   startButton: 'Commencer',
   page: 'Page',
   formations: 'Formations',

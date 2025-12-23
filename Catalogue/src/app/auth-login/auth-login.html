@@ -8,15 +8,50 @@
 
 </head>
 <body>
+  <button
+  type="button"
+  routerLink="/catalogue"
+  class="icon-button"
+  aria-label="Login"
+>
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+  >
+    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+    <polyline points="10 17 15 12 10 7"/>
+    <line x1="15" y1="12" x2="3" y2="12"/>
+  </svg>
+</button>
   <div class="body">
   <!-- auth-login.html -->
 <div class="wrapper">
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <h2>Login</h2>
     <div class="input-field">
-      <input type="text" formControlName="email" required>
-      <label>Enter your email</label>
-    </div>
+    <input 
+      type="email" 
+      formControlName="email" 
+      required 
+     
+    />
+    <label>Email</label>
+
+    <!-- Error messages -->
+  <small *ngIf="loginForm.controls['email'].touched && loginForm.controls['email'].errors?.['required']" class="error">
+    Email is required
+  </small>
+  <small *ngIf="loginForm.controls['email'].touched && loginForm.controls['email'].errors?.['email']" class="error">
+    Invalid email format
+  </small>
+  <small *ngIf="loginForm.controls['email'].touched && loginForm.controls['email'].errors?.['pattern']" class="error">
+    Only @teamwillgroup.com emails are allowed
+  </small>
+
+  </div>
+  
     <div class="input-field">
       <input type="password" formControlName="password" required>
       <label>Enter your password</label>

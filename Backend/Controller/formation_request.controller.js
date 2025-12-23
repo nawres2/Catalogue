@@ -23,7 +23,7 @@ export const getFormationsEnAttente = async (req, res) => {
         u.prenom as prenom_formateur
       FROM formation f
       LEFT JOIN users u ON f.id_formateur = u.id_user
-      WHERE f.etat = 'En attente'
+      WHERE f.etat = 'en_attente'
       ORDER BY f.id_formation DESC
     `;
     

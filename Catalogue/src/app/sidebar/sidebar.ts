@@ -1,50 +1,32 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
-import { AuthService } from '../service/auth-service';
-import { Router } from '@angular/router';
-import { SidebarService } from '../service/sidebar-service';
-
+ import { AuthService } from '../service/auth-service';
+ import { Router } from '@angular/router';
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule, RouterModule],
-  standalone: true,
+    imports: [CommonModule,RouterModule   ],  // ← ajouter ici aussi
+  standalone: true,             // ← IMPORTANT !!!
+ 
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
-export class Sidebar implements OnInit, OnDestroy {
+export class Sidebar {
+  @Output() toggleSidebar = new EventEmitter<boolean>();
+//  isAdmin = localStorage.getItem('role') === 'Admin';
   sidebarOpen = true;
-  private subscription?: Subscription;
-
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private sidebarService: SidebarService
-  ) {}
-
-  ngOnInit() {
-    // S'abonner aux changements d'état de la sidebar
-    this.subscription = this.sidebarService.sidebarState$.subscribe(
-      (state) => {
-        this.sidebarOpen = state;
-      }
-    );
-  }
-
-  ngOnDestroy() {
-    // Nettoyer la souscription
-    this.subscription?.unsubscribe();
-  }
-
+ 
+  constructor( private AuthService: AuthService,private router: Router ) {}
   toggle() {
-    this.sidebarService.toggleSidebar();
+    this.sidebarOpen = !this.sidebarOpen;
+    this.toggleSidebar.emit(this.sidebarOpen); // envoie TRUE ou FALSE
   }
+    logout() {
+    // Clear your auth tokens
+    this.AuthService.logout();
 
-  logout() {
-    this.authService.logout();
-
+    // Optional: SweetAlert confirmation
     Swal.fire({
       icon: 'success',
       title: 'Déconnecté',
@@ -53,6 +35,13 @@ export class Sidebar implements OnInit, OnDestroy {
       showConfirmButton: false
     });
 
+    // Redirect to login page
     this.router.navigate(['/catalogue']);
   }
+  isAdmin(): boolean {
+  return this.AuthService.hasRole(2);
+}
+isFormateur(): boolean {
+  return this.AuthService.hasRole(1);
+}
 }

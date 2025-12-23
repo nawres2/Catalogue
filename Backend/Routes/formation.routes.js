@@ -1,6 +1,8 @@
 import express from "express";
-import { getFormationById,getFormations ,addFormation,getFormateurs,deleteFormation,updateFormation,getObjectifs,addObjectif,getCompetences,addCompetence} from "../Controller/formation.controller.js";
+import { getFormationById, getFormationsByFormateur, getFormations ,addFormation,getFormateurs,deleteFormation,updateFormation,getObjectifs,addObjectif,getCompetences,addCompetence,addFormationFor} from "../Controller/formation.controller.js";
 import { downloadExcel } from "../Controller/formation.controller.js";
+import { verifyToken,authenticate  } from "../Middleware/authMiddleware.js";
+
 
 const router = express.Router();
  
@@ -17,5 +19,10 @@ router.post('/objectif', addObjectif);
 router.get('/competences', getCompetences);
 router.post('/competence', addCompetence);
 router.get("/download", downloadExcel);
-
+router.post('/FormationAttent', addFormationFor);
+router.get(
+  '/formations/formateur',
+  authenticate, 
+  getFormationsByFormateur
+);
 export default router;
