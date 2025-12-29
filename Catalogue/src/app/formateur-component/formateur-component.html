@@ -73,7 +73,23 @@
               <option value="OnBoarding">OnBoarding</option>
             </select>
           </div>
-        </div>
+          <div *ngIf="newFormation.parcours === 'OnBoarding'" class="form-group">
+  <label>Pays :</label>
+  
+  <div class="checkbox-group">
+    <div *ngFor="let p of paysList" class="checkbox-item">
+      <input 
+        type="checkbox"
+        [id]="'new-pays-' + p.id_pays"
+        [value]="p.id_pays"
+        [checked]="isNewPaysSelected(p.id_pays)"
+        (change)="toggleNewPays(p.id_pays)"
+      />
+      <label [for]="'new-pays-' + p.id_pays">{{ p.nom }}</label>
+    </div>
+  </div>
+  </div>
+  </div>
 
         <div class="form-group">
           <label>Durée</label>

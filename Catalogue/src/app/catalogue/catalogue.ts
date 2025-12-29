@@ -1,12 +1,14 @@
 import { Component, Inject, NgZone, OnInit, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { Formation } from '../model/formation.model';
 import { FormationService } from '../service/formation-service';
 import { HttpClientModule } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { TranslationService } from '../service/translation.service';
 import { RouterModule } from '@angular/router';
+import { Formation as BaseFormation } from '../model/formation.model';
 
+
+type Formation = BaseFormation;
 
 declare var $: any;
 declare var google: any;
@@ -22,11 +24,16 @@ interface GroupedFormations {
     }[];
   }[];
 }
+interface Pays {
+  id_pays: number;
+  nom: string;
+}
+
 
 interface GroupedParcours {
   name: string;
   count: number;
-  axes: {
+  axes?: {
     axe: string;
     types: {
       type: string;
@@ -34,6 +41,14 @@ interface GroupedParcours {
         status: 'interne' | 'externe';
         formations: Formation[];
       }[];
+    }[];
+  }[];
+  pays?: {
+    paysName: string;
+    paysId: number;
+    interneExterne: {
+      status: 'interne' | 'externe';
+      formations: Formation[];
     }[];
   }[];
 }
@@ -63,6 +78,7 @@ selectLanguage(lang: 'fr' | 'en') {
       feature2: 'Formats Variés',
       feature3: 'Compétences clés au rendez-vous',
       startButton: 'Commencer',
+      seconnecter:'Se connecter',
       page: 'Page',
       formations: 'Formations',
       parcours: 'Parcours',
@@ -115,6 +131,7 @@ selectLanguage(lang: 'fr' | 'en') {
   feature2: 'Formats Variés',
   feature3: 'Compétences clés au rendez-vous',
   startButton: 'Commencer',
+  seconnecter:'Se connecter',
   page: 'Page',
   formations: 'Formations',
   parcours: 'Parcours',
@@ -144,10 +161,11 @@ selectLanguage(lang: 'fr' | 'en') {
 englishTranslations = {
   catalogueTitle: 'Training Catalogue',
   welcomeSubtitle: 'Discover our trainings',
-  feature1: 'Feature 1',
-  feature2: 'Feature 2',
-  feature3: 'Feature 3',
+  feature1: 'Inspiring Themes',
+  feature2: 'Discover our training programs',
+  feature3: 'Various Formats',
   startButton: 'Start',
+  seconnecter:'Log in',
   page: 'Page',
   formations: 'Trainings',
   parcours: 'Paths',
@@ -174,6 +192,51 @@ englishTranslations = {
   popupCta: 'Start now!',
   discoverButton: 'Discover'
 };
+// Dictionnaire pour les AXES
+axeTranslations: { [key: string]: { fr: string, en: string } } = {
+  'Technique': { fr: 'Technique', en: 'Technical' },
+  'Fonctionnelle': { fr: 'Fonctionnelle', en: 'Functional' },
+  'Métier': { fr: 'Métier', en: 'Business' },
+  'Onboarding': { fr: 'Onboarding', en: 'Onboarding' },
+  'Solutions': { fr: 'Solutions', en: 'Solutions' },
+  'Linguistique': { fr: 'Linguistique', en: 'Linguistic' },
+  'Transversale': { fr: 'Transversale', en: 'Cross-functional' }
+};
+
+parcoursTranslations: { [key: string]: { fr: string, en: string } } = {
+  'Milles': { fr: 'Milles', en: 'Milles' },
+  'Cassiope': { fr: 'Cassiope', en: 'Cassiope' },
+  'E-flo': { fr: 'E-flo', en: 'E-flo' },
+  'EKIP': { fr: 'EKIP', en: 'EKIP' },
+  'OnBoarding': { fr: 'OnBoarding', en: 'OnBoarding' }
+};
+
+
+
+
+
+// Méthode pour traduire un nom d'axe
+translateAxe(axe: string): string {
+  // Si on est en français, retourner le nom original
+  if (this.currentLanguage === 'fr') {
+    return axe;
+  }
+  
+  // Si on est en anglais, chercher la traduction
+  // Si pas trouvé, retourner le nom original (fallback)
+  return this.axeTranslations[axe]?.en || axe;
+}
+
+// Méthode pour traduire un nom de parcours
+translateParcours(parcours: string): string {
+  if (this.currentLanguage === 'fr') {
+    return parcours;
+  }
+  
+  return this.parcoursTranslations[parcours]?.en || parcours;
+}
+// Dictionnaire pour les PARCOURS
+
 
 
 
@@ -190,6 +253,8 @@ englishTranslations = {
   visibleFormations: Formation[] = [];
 
   collapsedParcoursAxes: { [key: string]: boolean[] } = {};
+  collapsedParcours: boolean[] = [];
+
 
   showCover = true;
   showPopup: boolean = false;
@@ -213,9 +278,9 @@ englishTranslations = {
   this.translations = {
     catalogueTitle: 'Training Catalogue',
     welcomeSubtitle: 'Welcome',
-    feature1: 'Feature 1',
-    feature2: 'Feature 2',
-    feature3: 'Feature 3',
+    feature1: 'Inspiring Themes',
+    feature2: 'Discover our training programs',
+    feature3: 'Various Formats',
     startButton: 'Start',
     page: 'Page',
     formations: 'Trainings',
@@ -258,6 +323,10 @@ englishTranslations = {
   ngAfterViewInit() {
     // Code existant si nécessaire
   }
+  toggleParcours(index: number): void {
+    this.collapsedParcours[index] = !this.collapsedParcours[index];
+  }
+ 
 
   switchView(view: 'axe' | 'parcours') {
     this.currentView = view;
@@ -278,7 +347,7 @@ englishTranslations = {
     console.log('📥 Chargement des formations...');
     this.formationService.getFormations().subscribe({
       next: (data) => {
-        console.log('✅ Formations chargées:', data.length);
+        console.log('✅ Formations standards chargées:', data.length);
         this.formations = data;
         this.translatedFormations = [...data];
 
@@ -287,6 +356,9 @@ englishTranslations = {
         }
 
         this.updateGroupedData();
+
+        // ✅ Charger aussi les formations OnBoarding
+        this.loadOnboardingFormations();
 
         // Si la langue est anglais, traduire
         if (this.currentLanguage === 'en') {
@@ -297,129 +369,140 @@ englishTranslations = {
       error: err => console.error('❌ Erreur chargement formations:', err)
     });
   }
-
-  updateGroupedData(): void {
+loadOnboardingFormations(): void {
+  this.formationService.getAllOnboardingFormations().subscribe({
+    next: (onboardingData) => {
+      console.log('✅ OnBoarding formations chargées:', onboardingData.length);
+      
+      // Merge OnBoarding formations with existing formations
+      // Remove duplicates based on id_formation
+      const allFormations = [...this.formations, ...onboardingData];
+      const uniqueFormations = this.uniqueById(allFormations);
+      
+      this.formations = uniqueFormations;
+      this.translatedFormations = [...uniqueFormations];
+      
+      if (this.formations.length > 0 && !this.currentFormation) {
+        this.currentFormation = this.translatedFormations[0];
+      }
+      
+      this.updateGroupedData();
+      
+      // Translate if needed
+      if (this.currentLanguage === 'en') {
+        this.translateAllFormations();
+      }
+    },
+    error: err => console.error('❌ Erreur chargement OnBoarding:', err)
+  });
+}
+updateGroupedData(): void {
     this.groupedFormations = this.computeGroupedFormations();
     this.groupedParcours = this.computeParcoursFormations();
 
-    this.collapsedAxes = this.groupedFormations.map(() => false);
+    this.collapsedAxes = this.groupedFormations.map(() => true);
+    
+    // Initialize collapsed state for each parcours
+    this.collapsedParcours = this.groupedParcours.map(() => true); 
+    
     this.collapsedParcoursAxes = {};
+    
     this.groupedParcours.forEach(p => {
-      this.collapsedParcoursAxes[p.name] = p.axes.map(() => false);
+      if (p.pays) {
+        // OnBoarding: initialize collapse state for pays
+        this.collapsedParcoursAxes[p.name] = p.pays.map(() => true);
+      } else if (p.axes) {
+        // Other parcours: initialize collapse state for axes
+        this.collapsedParcoursAxes[p.name] = p.axes.map(() => true);
+      }
     });
   }
-
-// Remplacez seulement les méthodes translateAllFormations et translateField dans votre catalogue.ts
 // Remplacez seulement les méthodes translateAllFormations et translateField dans votre catalogue.ts
 
 async translateAllFormations() {
-  console.log('🔄 Début de la traduction de', this.formations.length, 'formations');
+  console.log('🔄 MEGA-BATCH: Traduction de', this.formations.length, 'formations en 1 appel');
   this.isTranslating = true;
   
   try {
+    // Collecter TOUS les textes de TOUTES les formations
+    const allTexts: string[] = [];
+    const formationFieldCounts: number[] = [];
+    
+    this.formations.forEach(formation => {
+      const fields = [
+        formation.intitule || '',
+        formation.duree || '',
+        formation.prerequis || '',
+        formation.population || '',
+        // ❌ NE PAS INCLURE : axe, parcours (ils servent de clés de regroupement)
+        // formation.axe || '',
+        // formation.parcours || '',
+        formation.niveau || '',
+        formation.type || '',
+        formation.formateur || '',
+        formation.prestataire || '',
+        ...(formation.objectifs || []),
+        ...(formation.competences || [])
+      ];
+      
+      allTexts.push(...fields);
+      formationFieldCounts.push(fields.length);
+    });
+    
+    console.log(`📊 Total: ${allTexts.length} textes à traduire en 1 appel`);
+    
+    // ⚡ Traduire TOUT en 1 seul appel API
+    const allTranslated = await this.translationService.translateBatchOptimized(allTexts, 'en');
+    
+    // Reconstituer les formations
     const translated: Formation[] = [];
-    const BATCH_SIZE = 5; // Traduire 5 formations en parallèle
+    let currentIndex = 0;
     
-    for (let i = 0; i < this.formations.length; i += BATCH_SIZE) {
-      const batch = this.formations.slice(i, Math.min(i + BATCH_SIZE, this.formations.length));
-      console.log(`📦 Traduction lot ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(this.formations.length / BATCH_SIZE)} (formations ${i + 1}-${i + batch.length})`);
+    this.formations.forEach((formation, i) => {
+      const fieldCount = formationFieldCounts[i];
+      const formationTexts = allTranslated.slice(currentIndex, currentIndex + fieldCount);
       
-      // Traduire toutes les formations du lot en parallèle
-      const batchPromises = batch.map(async (formation, idx) => {
-        try {
-          const [
-            intitule,
-            duree,
-            prerequis,
-            population,
-            axe,
-            niveau,
-            type,
-            parcours,
-            formateur,
-            prestataire,
-            objectifs,
-            competences
-          ] = await Promise.all([
-            this.translateField(formation.intitule),
-            this.translateField(formation.duree),
-            this.translateField(formation.prerequis),
-            this.translateField(formation.population),
-            this.translateField(formation.axe),
-            this.translateField(formation.niveau),
-            this.translateField(formation.type),
-            this.translateField(formation.parcours),
-            formation.formateur ? this.translateField(formation.formateur) : Promise.resolve(''),
-            formation.prestataire ? this.translateField(formation.prestataire) : Promise.resolve(''),
-            formation.objectifs && formation.objectifs.length > 0
-              ? this.translationService.translateArray(formation.objectifs, 'en')
-              : Promise.resolve([]),
-            formation.competences && formation.competences.length > 0
-              ? this.translationService.translateArray(formation.competences, 'en')
-              : Promise.resolve([])
-          ]);
-
-          return {
-            ...formation,
-            intitule,
-            duree,
-            prerequis,
-            population,
-            axe,
-            niveau,
-            type,
-            parcours,
-            formateur,
-            prestataire,
-            objectifs,
-            competences
-          };
-        } catch (err) {
-          console.error(`❌ Erreur formation ${i + idx + 1}:`, err);
-          return formation; // Retourner l'original en cas d'erreur
-        }
+      let idx = 0;
+      const objCount = formation.objectifs?.length || 0;
+      const compCount = formation.competences?.length || 0;
+      
+      translated.push({
+        ...formation,
+        intitule: formationTexts[idx++],
+        duree: formationTexts[idx++],
+        prerequis: formationTexts[idx++],
+        population: formationTexts[idx++],
+        // ✅ GARDER LES VALEURS ORIGINALES FRANÇAISES
+        axe: formation.axe,           // Reste "Technique" même en anglais
+        parcours: formation.parcours, // Reste "Milles" même en anglais
+        pays: formation.pays,         // Garde les noms de pays originaux
+        niveau: formationTexts[idx++],
+        type: formationTexts[idx++],
+        formateur: formationTexts[idx++],
+        prestataire: formationTexts[idx++],
+        objectifs: formationTexts.slice(idx, idx + objCount),
+        competences: formationTexts.slice(idx + objCount, idx + objCount + compCount)
       });
-
-      const batchResults = await Promise.all(batchPromises);
-      translated.push(...batchResults);
       
-      console.log(`✅ Lot ${Math.floor(i / BATCH_SIZE) + 1} terminé (${translated.length}/${this.formations.length})`);
-      
-      // Forcer la détection de changement après chaque lot
-      this.cdr.detectChanges();
-    }
-
-    console.log('✅ Toutes les traductions terminées');
+      currentIndex += fieldCount;
+    });
     
-    // DEBUG: Vérifier les premières formations traduites
-    console.log('📋 Exemple de traduction:');
-    console.log('  Formation 1 (FR):', this.formations[0].intitule);
-    console.log('  Formation 1 (EN):', translated[0].intitule);
-    console.log('  Axe (FR):', this.formations[0].axe);
-    console.log('  Axe (EN):', translated[0].axe);
-    
+    console.log('✅ Traduction MEGA-BATCH terminée !');
     this.translatedFormations = translated;
     this.updateGroupedData();
     
-    console.log('📊 Groupes après traduction:', this.groupedFormations.map(g => g.axe));
-    
     if (this.currentFormation) {
       this.currentFormation = this.translatedFormations[this.currentPage];
-      console.log('📄 Formation affichée:', this.currentFormation.intitule);
     }
     
-    // Forcer la mise à jour finale de l'affichage
     this.cdr.detectChanges();
-    console.log('🔄 Vue mise à jour avec les traductions');
     
   } catch (error) {
-    console.error('❌ Erreur globale de traduction:', error);
-    alert('Erreur lors de la traduction. Vérifiez:\n1. LibreTranslate sur http://localhost:5000\n2. Le proxy sur http://localhost:8080');
+    console.error('❌ Erreur MEGA-BATCH:', error);
     this.translatedFormations = [...this.formations];
     this.updateGroupedData();
   } finally {
     this.isTranslating = false;
-    console.log('🏁 Processus de traduction terminé');
   }
 }
 
@@ -463,7 +546,22 @@ private async translateField(text: string | undefined): Promise<string> {
   launchCatalogue() {
     console.log("Catalogue started!"); 
   }
+  private getUniqueFormations(formations: Formation[]): Formation[] {
+  const map = new Map<number, Formation>();
 
+  for (const f of formations) {
+    if (!map.has(f.id_formation)) {
+      map.set(f.id_formation, f);
+    }
+  }
+
+  return Array.from(map.values());
+}
+private uniqueById(formations: Formation[]): Formation[] {
+  const map = new Map<number, Formation>();
+  formations.forEach(f => map.set(f.id_formation, f));
+  return Array.from(map.values());
+}
   computeGroupedFormations(): GroupedFormations[] {
     const grouped: GroupedFormations[] = [];
     const axes = [...new Set(this.translatedFormations.map(f => f.axe))];
@@ -490,60 +588,127 @@ private async translateField(text: string | undefined): Promise<string> {
   }
 
   computeParcoursFormations(): GroupedParcours[] {
-    const parcours = [...new Set(this.translatedFormations.map(f => f.parcours).filter(p => p))];
+  const parcoursNames = [...new Set(this.translatedFormations.map(f => f.parcours).filter(p => p))];
+  
+  return parcoursNames.map(parcoursName => {
+    const parcoursFormations = this.translatedFormations.filter(f => f.parcours === parcoursName);
     
-    return parcours.map(parcoursName => {
-      const parcoursFormations = this.translatedFormations.filter(f => f.parcours === parcoursName);
-      const axes = [...new Set(parcoursFormations.map(f => f.axe))];
-      
-      const axeGroups = axes.map(axe => {
-        const axeFormations = parcoursFormations.filter(f => f.axe === axe);
-        const types = [...new Set(axeFormations.map(f => f.type))];
-        
-        const typeGroups = types.map(type => {
-          const typeFormations = axeFormations.filter(f => f.type === type);
-          return {
-            type,
-            interneExterne: ['externe', 'interne'].map(status => ({
-              status: status as 'externe' | 'interne',
-              formations: typeFormations.filter(f => f.interne_externe === status)
-            })).filter(group => group.formations.length > 0)
-          };
-        });
-        
-        return { axe, types: typeGroups };
-      });
+    // ✅ Check if this is OnBoarding parcours
+    if (parcoursName === 'OnBoarding') {
+      // Group by pays for OnBoarding
+      const paysGroups = this.groupByPays(parcoursFormations);
       
       return {
         name: parcoursName,
         count: parcoursFormations.length,
-        axes: axeGroups
+        pays: paysGroups,
+        axes: [] // Empty axes for OnBoarding
       };
+    }
+    
+    // ✅ Normal parcours: group by axes
+    const axes = [...new Set(parcoursFormations.map(f => f.axe))];
+    
+    const axeGroups = axes.map(axe => {
+      const axeFormations = parcoursFormations.filter(f => f.axe === axe);
+      const types = [...new Set(axeFormations.map(f => f.type))];
+      
+      const typeGroups = types.map(type => {
+        const typeFormations = axeFormations.filter(f => f.type === type);
+        return {
+          type,
+          interneExterne: ['externe', 'interne'].map(status => ({
+            status: status as 'externe' | 'interne',
+            formations: typeFormations.filter(f => f.interne_externe === status)
+          })).filter(group => group.formations.length > 0)
+        };
+      });
+      
+      return { axe, types: typeGroups };
     });
+    
+    return {
+      name: parcoursName,
+      count: parcoursFormations.length,
+      axes: axeGroups,
+      pays: [] // Empty pays for normal parcours
+    };
+  });
+}
+
+private groupByPays(formations: Formation[]): any[] {
+  const paysMap = new Map<number, Formation[]>();
+
+  formations.forEach(f => {
+    if (f.pays && f.pays.length > 0) {
+      f.pays.forEach((p: Pays) => {  // <-- typage explicite ici
+        if (!paysMap.has(p.id_pays)) paysMap.set(p.id_pays, []);
+        paysMap.get(p.id_pays)!.push(f);
+      });
+    }
+  });
+
+  const result = Array.from(paysMap.entries()).map(([paysId, forms]) => ({
+    paysName: forms[0].pays.find((p: Pays) => p.id_pays === paysId)?.nom || 'Unknown',
+    paysId,
+    interneExterne: ['externe','interne'].map(status => ({
+      status: status as 'externe'|'interne',
+      formations: forms.filter(f => f.interne_externe === status)
+    })).filter(g => g.formations.length > 0)
+  }));
+  return result;
+}
+
+
+
+initializeCollapsedParcoursAxes(): void {
+  this.collapsedParcoursAxes = {};
+
+  for (const p of this.groupedParcours ?? []) {
+    // Use optional chaining and nullish coalescing to handle undefined axes
+    this.collapsedParcoursAxes[p.name] = p.axes?.map(() => false) ?? [];
   }
 
-  getVisibleFormations(): Formation[] {
-    if (this.currentView === 'axe') {
-      return this.groupedFormations.flatMap((g: GroupedFormations) =>
-        g.types.flatMap(t =>
-          t.interneExterne.flatMap(s => s.formations)
-        )
-      );
-    } else if (this.currentView === 'parcours') {
-      const formations: Formation[] = [];
-      for (const parcours of this.groupedParcours) {
+  console.log('✅ collapsedParcoursAxes initialized:', this.collapsedParcoursAxes);
+}
+
+getVisibleFormations(): Formation[] {
+  if (this.currentView === 'axe') {
+    return this.groupedFormations?.flatMap((g: GroupedFormations) =>
+      g.types?.flatMap(t =>
+        t.interneExterne?.flatMap(s => s.formations ?? []) ?? []
+      ) ?? []
+    ) ?? [];
+  } else if (this.currentView === 'parcours') {
+    const formations: Formation[] = [];
+
+    for (const parcours of this.groupedParcours ?? []) {
+      // Handle OnBoarding with pays grouping
+      if (parcours.pays?.length) {
+        for (const paysGroup of parcours.pays) {
+          for (const statusGroup of paysGroup.interneExterne ?? []) {
+            formations.push(...(statusGroup.formations ?? []));
+          }
+        }
+      }
+      // Handle normal parcours with axes grouping
+      else if (parcours.axes?.length) {
         for (const axe of parcours.axes) {
-          for (const type of axe.types) {
-            for (const statusGroup of type.interneExterne) {
-              formations.push(...statusGroup.formations);
+          for (const type of axe.types ?? []) {
+            for (const statusGroup of type.interneExterne ?? []) {
+              formations.push(...(statusGroup.formations ?? []));
             }
           }
         }
       }
-      return formations;
     }
-    return [];
+
+    return formations;
   }
+
+  return [];
+}
+
 
   isCurrentPageFormation(formation: Formation): boolean {
     const visible = this.getVisibleFormations();

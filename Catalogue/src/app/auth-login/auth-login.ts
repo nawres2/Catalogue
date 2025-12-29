@@ -59,19 +59,24 @@ onSubmit() {
       this.authService.saveToken(res.token);
 
       // Stocker le rôle de l'utilisateur pour le front
-      const role = res.user.id_role === 1 ? 'admin' : 'formateur';
-      localStorage.setItem('userRole', role);
+      const roleId = res.user.id_role;
+      localStorage.setItem('userRole', roleId === 1 ? 'admin' : 'formateur');
 
       if (remember) this.authService.saveToken(res.token);
 
       Swal.fire({
         icon: 'success',
         title: 'Welcome',
-        text: 'Login avec success.',
+        text: 'Login avec succès.',
         timer: 1500,
         showConfirmButton: false
       }).then(() => {
-        this.router.navigate(['catalogueAdmin']);
+        // Redirection selon le rôle
+        if (roleId === 2) {
+          this.router.navigate(['formation']);   // <-- composant pour admin
+        } else {
+          this.router.navigate(['formateur']); // <-- composant pour formateur
+        }
       });
     },
 
@@ -79,12 +84,13 @@ onSubmit() {
       Swal.fire({
         icon: 'error',
         title: 'Access refus',
-        text: err.error?.message || 'email ou mot de passe invalid',
+        text: err.error?.message || 'Email ou mot de passe invalide',
         confirmButtonColor: '#d33'
       });
     }
   });
 }
+
 
 
 }

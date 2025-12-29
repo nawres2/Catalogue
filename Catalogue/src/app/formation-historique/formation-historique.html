@@ -108,6 +108,10 @@
           <li *ngFor="let c of selectedFormation.competences">{{ c }}</li>
         </ul>
       </div>
+        <div class="info-section" *ngIf="selectedFormation.prerequis">
+        <h3>prerequis</h3>
+         <p>{{ selectedFormation.prerequis }}</p>
+      </div>
     </div>
 
     <!-- Action Buttons -->
@@ -130,69 +134,142 @@
       <button (click)="closeUpdateModal()">✕</button>
     </div>
 
-    <div class="modal-content">
-      <form>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Intitulé</label>
-            <input type="text" [(ngModel)]="selectedFormation.intitule" name="intitule" />
-          </div>
-          <div class="form-group">
-            <label>Axe</label>
-            <input type="text" [(ngModel)]="selectedFormation.axe" name="axe" />
-          </div>
+   <div class="modal-content" *ngIf="selectedFormation">
+
+  <form  (ngSubmit)="confirmUpdate()">
+    <div class="row">
+
+      <!-- COLONNE GAUCHE -->
+      <div class="col">
+        <!-- Niveau -->
+        <label>Niveau :</label>
+        <select [(ngModel)]="selectedFormation.niveau" name="niveau" required>
+          <option value="débutant">Débutant</option>
+          <option value="intermédiaire">Intermédiaire</option>
+          <option value="avancé">Avancé</option>
+          <option value="senior">Senior</option>
+          <option value="expert">Expert</option>
+        </select>
+
+        <!-- Type -->
+        <label>Type :</label>
+        <input type="text" [(ngModel)]="selectedFormation.type" name="type" required>
+
+        <!-- Intitulé -->
+        <label>Intitulé :</label>
+        <input type="text" [(ngModel)]="selectedFormation.intitule" name="intitule" required>
+
+        <!-- Population -->
+        <label>Population :</label>
+        <input type="text" [(ngModel)]="selectedFormation.population" name="population">
+
+        <!-- Axe -->
+        <label>Axe :</label>
+        <select [(ngModel)]="selectedFormation.axe" name="axe" required>
+          <option value="Technique">Technique</option>
+          <option value="Fonctionnelle">Fonctionnelle</option>
+          <option value="Métier">Métier</option>
+          <option value="Onboarding">Onboarding</option>
+          <option value="Solutions">Solutions</option>
+          <option value="Linguistique">Linguistique</option>
+          <option value="Transversale">Transversale</option>
+        </select>
+
+        <!-- Interne / Externe -->
+        <label>Interne / Externe :</label>
+        <select [(ngModel)]="selectedFormation.interne_externe" name="interne_externe">
+          <option value="interne">Interne</option>
+          <option value="externe">Externe</option>
+        </select>
+
+        <!-- EXTERNE -->
+        <div *ngIf="selectedFormation.interne_externe === 'externe'">
+          <label>Prestataire :</label>
+          <input type="text" [(ngModel)]="selectedFormation.prestataire" name="prestataire">
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>Niveau</label>
-            <select [(ngModel)]="selectedFormation.niveau" name="niveau">
-              <option value="Débutant">Débutant</option>
-              <option value="Intermédiaire">Intermédiaire</option>
-              <option value="Avancé">Avancé</option>
-              <option value="Expert">Expert</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Population</label>
-            <input type="text" [(ngModel)]="selectedFormation.population" name="population" />
-          </div>
+        <!-- INTERNE -->
+        <div *ngIf="selectedFormation.interne_externe === 'interne'">
+          <label>Formateur interne :</label>
+          <select [(ngModel)]="selectedFormation.id_formateur" name="id_formateur">
+            <option value="" disabled selected>Sélectionnez un formateur</option>
+            <option *ngFor="let f of formateurs" [value]="f.id_user">
+              {{ f.nom }} {{ f.prenom }}
+            </option>
+          </select>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>Type</label>
-            <select [(ngModel)]="selectedFormation.interne_externe" name="interne_externe">
-              <option value="Interne">Interne</option>
-              <option value="Externe">Externe</option>
-            </select>
+        <!-- Parcours -->
+        <label>Parcours :</label>
+        <select [(ngModel)]="selectedFormation.parcours" name="parcours" required>
+          <option value="">Sélectionnez...</option>
+          <option value="Milles">Milles</option>
+          <option value="Cassiope">Cassiope</option>
+          <option value="E-flo">E-flo</option>
+          <option value="EKIP">EKIP</option>
+          <option value="OnBoarding">OnBoarding</option>
+        </select>
+
+        <!-- Pays (multi-select for OnBoarding) -->
+        <div *ngIf="selectedFormation.parcours === 'OnBoarding'" class="form-group">
+          <label>Pays :</label>
+          <div class="checkbox-group">
+            <div *ngFor="let p of paysList" class="checkbox-item">
+              <input
+                type="checkbox"
+                [id]="'pays-' + p.id_pays"
+                [value]="p.id_pays"
+                [checked]="isPaysSelected(p.id_pays)"
+                (change)="togglePays(p.id_pays)"
+              />
+              <label [for]="'pays-' + p.id_pays">{{ p.nom }}</label>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Durée</label>
-            <input type="text" [(ngModel)]="selectedFormation.duree" name="duree" />
-          </div>
+        </div>
+      </div>
+
+      <!-- COLONNE DROITE -->
+      <div class="col">
+        <!-- Durée -->
+        <label>Durée :</label>
+        <div class="row">
+          <input type="number" [(ngModel)]="editDureeNumber" name="dureeNumber" min="1" required>
+          <select [(ngModel)]="editDureeUnit" name="dureeUnit" required>
+            <option value="jours">Jours</option>
+            <option value="heures">Heures</option>
+          </select>
         </div>
 
-        <div class="form-group">
-          <label>Description</label>
-          <textarea [(ngModel)]="selectedFormation.description" name="description"></textarea>
-        </div>
+        <!-- Prérequis -->
+        <label>Prérequis :</label>
+        <textarea [(ngModel)]="selectedFormation.prerequis" name="prerequis"></textarea>
 
-        <div class="form-group">
-          <label>Prérequis</label>
-          <textarea [(ngModel)]="selectedFormation.prerequis" name="prerequis"></textarea>
+        <!-- Objectifs -->
+        <label>Objectifs :</label>
+        <div *ngFor="let obj of editObjectifsInput; let i = index" class="row">
+          <input type="text" [(ngModel)]="editObjectifsInput[i]" [name]="'objectif' + i">
         </div>
-      </form>
+        <button type="button" class="btn-add-small" (click)="addEditObjectifInput()">+ Ajouter un objectif</button>
+
+        <!-- Compétences -->
+        <label>Compétences :</label>
+        <div *ngFor="let comp of editCompetencesInput; let i = index" class="row">
+          <input type="text" [(ngModel)]="editCompetencesInput[i]" [name]="'competence' + i">
+        </div>
+        <button type="button" class="btn-add-small" (click)="addEditCompetenceInput()">+ Ajouter une compétence</button>
+
+        <!-- Actions -->
+        <div class="modal-actions full-width">
+         <button type="submit" class="btn-save">Mettre à jour</button>
+
+          <button type="button" class="btn-cancel" (click)="closeUpdateModal()">Annuler</button>
+        </div>
+      </div>
+
     </div>
+  </form>
+</div>
 
-    <div class="modal-actions">
-      <button class="btn btn-cancel" (click)="closeUpdateModal()">
-        Annuler
-      </button>
-      <button class="btn btn-update" (click)="confirmUpdate()">
-         Enregistrer
-      </button>
-    </div>
   </div>
 </div>
 

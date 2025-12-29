@@ -17,13 +17,14 @@ import { FormationForm } from '../model/FormationForm.model';
 export class FormateurComponent implements OnInit {
 
   formateurs: { id_user: number; nom: string; prenom: string }[] = [];
-
+paysList: { id_pays: number; nom: string }[] = [];
   newFormation: FormationForm = this.createEmptyForm();
-
+pays: number[] = [];
   constructor(private formationService: FormationService) {}
 
   ngOnInit(): void {
     this.loadFormateurs();
+     this.loadPays();
   }
 
   private createEmptyForm(): FormationForm {
@@ -31,11 +32,12 @@ export class FormateurComponent implements OnInit {
       intitule: '',
       type: 'Formation',
       population: '',
-      niveau: 'débutant',
+      niveau: '',
       prerequis: '',
       duree: '',
       axe: '',
       parcours: '',
+      pays: [] as number[],
       interne_externe: 'interne',
       objectifs: [''],
       competences: ['']
@@ -54,6 +56,33 @@ loadFormateurs(): void {
   });
 }
 
+isNewPaysSelected(paysId: number): boolean {
+  return this.newFormation.pays?.includes(paysId) || false;
+}
+loadPays(): void {
+  this.formationService.getPays().subscribe({
+    next: data => this.paysList = data,
+    error: err => console.error(err)
+  });
+}
+
+
+// Toggle country selection in NEW formation
+toggleNewPays(paysId: number): void {
+  if (!this.newFormation.pays) {
+    this.newFormation.pays = [];
+  }
+  
+  const index = this.newFormation.pays.indexOf(paysId);
+  
+  if (index > -1) {
+    // Remove if already selected
+    this.newFormation.pays.splice(index, 1);
+  } else {
+    // Add if not selected
+    this.newFormation.pays.push(paysId);
+  }
+}
 
   onInterneExterneChange(): void {
     if (this.newFormation.interne_externe === 'interne') {
@@ -81,15 +110,17 @@ loadFormateurs(): void {
 
   saveFormation(): void {
     const payload: Formation = {
-      id_formation: 0,
-      formateur: '',
-      axe_code: '',
-      ...this.newFormation,
-      objectifs: this.newFormation.objectifs.filter(o => o.trim()),
-      competences: this.newFormation.competences.filter(c => c.trim()),
-      prestataire: this.newFormation.prestataire ?? '',
-      id_formateur: this.newFormation.id_formateur ?? 0
-    };
+  id_formation: 0,
+  formateur: '',
+  axe_code: '',
+  ...this.newFormation,
+  objectifs: this.newFormation.objectifs.filter(o => o.trim()),
+  competences: this.newFormation.competences.filter(c => c.trim()),
+  prestataire: this.newFormation.prestataire ?? '',
+  id_formateur: this.newFormation.id_formateur ?? 0,
+  pays: this.newFormation.pays ?? []  // <-- explicitly required
+};
+
 
     this.formationService.addFormation(payload).subscribe({
       next: (res) => {

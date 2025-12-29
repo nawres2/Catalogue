@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { firstValueFrom, interval, Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
-
+import { FormationService } from '../service/formation-service';
 @Component({
   selector: 'app-formation',
   standalone: true,
@@ -18,6 +18,8 @@ export class formation implements OnInit, OnDestroy {
   formateurs: any[] = [];
   objectifs: any[] = [];
   competences: any[] = [];
+paysList: { id_pays: number; nom: string }[] = [];
+pays: number[] = [];
 
   modalOpen = false;
   editModalOpen = false;
@@ -47,7 +49,8 @@ totalGuideSteps = 3;
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private formationService: FormationService
   ) {}
 
   /* ===================== LIFECYCLE ===================== */
@@ -67,9 +70,48 @@ totalGuideSteps = 3;
     this.welcomeModalOpen = true;
     localStorage.setItem('hasSeenFormationGuide', 'true');
   }
+   this.loadPays();
 }
 
+isPaysSelected(paysId: number): boolean {
+  return this.editFormation.pays?.includes(paysId) || false;
+}
 
+togglePays(paysId: number): void {
+  if (!this.editFormation.pays) {
+    this.editFormation.pays = [];
+  }
+  
+  const index = this.editFormation.pays.indexOf(paysId);
+  
+  if (index > -1) {
+    // Remove if already selected
+    this.editFormation.pays.splice(index, 1);
+  } else {
+    // Add if not selected
+    this.editFormation.pays.push(paysId);
+  }
+}
+isNewPaysSelected(paysId: number): boolean {
+  return this.newFormation.pays?.includes(paysId) || false;
+}
+
+// Toggle country selection in NEW formation
+toggleNewPays(paysId: number): void {
+  if (!this.newFormation.pays) {
+    this.newFormation.pays = [];
+  }
+  
+  const index = this.newFormation.pays.indexOf(paysId);
+  
+  if (index > -1) {
+    // Remove if already selected
+    this.newFormation.pays.splice(index, 1);
+  } else {
+    // Add if not selected
+    this.newFormation.pays.push(paysId);
+  }
+}
   ngOnDestroy() {
     if (this.refreshSub) {
       this.refreshSub.unsubscribe();
@@ -80,6 +122,12 @@ downloadFormations() {
   window.open('http://localhost:3000/api/download', '_blank');
 }
 
+loadPays(): void {
+  this.formationService.getPays().subscribe({
+    next: data => this.paysList = data,
+    error: err => console.error(err)
+  });
+}
 
   /* ===================== GUIDE NAVIGATION ===================== */
 
@@ -456,7 +504,6 @@ closeWelcomeModal() {
   emptyFormation() {
     return {
       axe: '',
-      type: 'Formation',
       intitule: '',
       population: '',
       niveau: 'débutant',
@@ -465,6 +512,7 @@ closeWelcomeModal() {
       interne_externe: 'interne',
       prestataire: '',
       parcours: '',
+       pays: [] as number[],
       duree: '',
       objectifs: [],
       competences: [],

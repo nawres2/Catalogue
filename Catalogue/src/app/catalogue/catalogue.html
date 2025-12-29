@@ -67,7 +67,7 @@
       </svg>
     </button>
     <a routerLink="/login" class="login-link" routerLinkActive="active">
-    Se connecter
+    <span>{{ translations.seconnecter }}</span>
   </a>
   </div>
 </div>
@@ -109,8 +109,7 @@
           <div class="axe-section" [class.collapsed]="collapsedAxes[i]">
             <div class="axe-header" (click)="toggleAxe(i)">
               <div class="axe-header-content">
-                <div class="axe-name">{{ axeGroup.axe }}</div>
-              </div>
+<div class="axe-name">{{ translateAxe(axeGroup.axe) }}</div>              </div>
               <svg class="axe-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
@@ -144,53 +143,102 @@
       </div>
 
       <!-- VIEW BY PARCOURS -->
-      <div *ngIf="currentView === 'parcours'" class="view-content">
-        <div *ngFor="let parcours of groupedParcours" class="parcours-section">
-          <div class="parcours-header">
-            <div class="parcours-name">{{ parcours.name }}</div>
-            <span class="parcours-count">{{ parcours.count }} {{ translations.formations }}</span>
-          </div>
+<div *ngIf="currentView === 'parcours'" class="view-content">
+  <div *ngFor="let parcours of groupedParcours; let parcoursIndex = index" class="parcours-section">
+    
+    <!-- Parcours Header - Now Clickable -->
+    <div class="parcours-header" 
+         [class.collapsed]="collapsedParcours[parcoursIndex]"
+         (click)="toggleParcours(parcoursIndex)">
+      <div class="parcours-header-left">
+        <svg class="parcours-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+<div class="parcours-name">{{ translateParcours(parcours.name) }}</div>      </div>
+      <span class="parcours-count">{{ parcours.count }} {{ translations.formations }}</span>
+    </div>
 
-          <div class="parcours-content">
-            <ng-container *ngFor="let axeGroup of parcours.axes; let a = index">
-              <div class="axe-section" [class.collapsed]="collapsedParcoursAxes[parcours.name]?.[a]">
-                <div class="axe-header" (click)="toggleParcoursAxe(parcours.name, a)">
-                  <div class="axe-header-content">
-                    <div class="axe-name">{{ axeGroup.axe }}</div>
-                  </div>
-                  <svg class="axe-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </div>
+    <!-- Parcours Content - Collapsible -->
+    <div class="parcours-content" [class.hidden]="collapsedParcours[parcoursIndex]">
+      
+      <!-- Other Parcours: Group by Axes -->
+      <ng-container *ngIf="parcours.axes">
+        <ng-container *ngFor="let axeGroup of parcours.axes; let a = index">
+          <div class="axe-section" [class.collapsed]="collapsedParcoursAxes[parcours.name]?.[a]">
+            <div class="axe-header" (click)="toggleParcoursAxe(parcours.name, a)">
+              <div class="axe-header-content">
+<div class="axe-name">{{ translateAxe(axeGroup.axe) }}</div>          </div>
+              <svg class="axe-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
 
-                <div class="axe-content">
-                  <ng-container *ngFor="let typeGroup of axeGroup.types">
-                    <div class="type-section">
-                      <ng-container *ngFor="let statusGroup of typeGroup.interneExterne">
-                        <div class="status-section">
-                          <div class="status-header">
-                            <div class="type-name">{{ statusGroup.status | titlecase }}</div>
-                          </div>
-                          <div class="formation-list">
-                            <button 
-                              *ngFor="let formation of statusGroup.formations"
-                              class="formation-item"
-                              [class.active]="isCurrentPageFormation(formation)"
-                              (click)="goToPage(getVisibleFormations().indexOf(formation))">
-                              <span class="formation-title">{{ formation.intitule }}</span>
-                              <div *ngIf="isCurrentPageFormation(formation)" class="active-indicator"></div>
-                            </button>
-                          </div>
-                        </div>
-                      </ng-container>
+            <div class="axe-content">
+              <ng-container *ngFor="let typeGroup of axeGroup.types">
+                <div class="type-section">
+                  <ng-container *ngFor="let statusGroup of typeGroup.interneExterne">
+                    <div class="status-section">
+                      <div class="status-header">
+                        <div class="type-name">{{ statusGroup.status | titlecase }}</div>
+                      </div>
+                      <div class="formation-list">
+                        <button 
+                          *ngFor="let formation of statusGroup.formations"
+                          class="formation-item"
+                          [class.active]="isCurrentPageFormation(formation)"
+                          (click)="goToPage(getVisibleFormations().indexOf(formation))">
+                          <span class="formation-title">{{ formation.intitule }}</span>
+                          <div *ngIf="isCurrentPageFormation(formation)" class="active-indicator"></div>
+                        </button>
+                      </div>
                     </div>
                   </ng-container>
                 </div>
-              </div>
-            </ng-container>
+              </ng-container>
+            </div>
           </div>
-        </div>
-      </div>
+        </ng-container>
+      </ng-container>
+
+      <!-- OnBoarding: Group by Pays -->
+      <ng-container *ngIf="parcours.pays">
+        <ng-container *ngFor="let paysGroup of parcours.pays; let p = index">
+          <div class="axe-section" [class.collapsed]="collapsedParcoursAxes[parcours.name]?.[p]">
+            <div class="axe-header" (click)="toggleParcoursAxe(parcours.name, p)">
+              <div class="axe-header-content">
+                <div class="axe-name"> {{ paysGroup.paysName }}</div>
+              </div>
+              <svg class="axe-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+
+            <div class="axe-content">
+              <ng-container *ngFor="let statusGroup of paysGroup.interneExterne">
+                <div class="status-section">
+                  <div class="status-header">
+                    <div class="type-name">{{ statusGroup.status | titlecase }}</div>
+                  </div>
+                  <div class="formation-list">
+                    <button 
+                      *ngFor="let formation of statusGroup.formations"
+                      class="formation-item"
+                      [class.active]="isCurrentPageFormation(formation)"
+                      (click)="goToPage(getVisibleFormations().indexOf(formation))">
+                      <span class="formation-title">{{ formation.intitule }}</span>
+                      <div *ngIf="isCurrentPageFormation(formation)" class="active-indicator"></div>
+                    </button>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+
+    </div>
+  </div>
+</div>
     </div>
   </div>
 

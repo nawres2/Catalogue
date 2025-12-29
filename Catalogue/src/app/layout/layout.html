@@ -1,7 +1,9 @@
 <div class="layout">
-  <app-sidebar [class.closed]="!isSidebarOpen" (toggleSidebar)="isSidebarOpen = $event"></app-sidebar>
+  <app-sidebar [class.closed]="!isSidebarOpen"></app-sidebar>
 
   <main class="content">
-    <router-outlet></router-outlet>
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
   </main>
 </div>

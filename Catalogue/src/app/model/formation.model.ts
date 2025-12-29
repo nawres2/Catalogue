@@ -1,4 +1,5 @@
 export interface Formation {
+  pays: any;
   id_formation: number;
   intitule: string;
   type: string;
@@ -15,4 +16,5 @@ export interface Formation {
   parcours:string;
   axe_code:string;
   prestataire:string;
+   
 }

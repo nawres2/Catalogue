@@ -31,4 +31,5 @@ export class LayoutComponent implements OnInit, OnDestroy {
     // Nettoyer la souscription
     this.subscription?.unsubscribe();
   }
+  
 }

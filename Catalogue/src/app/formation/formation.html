@@ -62,8 +62,7 @@
           <option value="expert">Expert</option>
         </select>
 
-        <label>Type :</label>
-        <input type="text" [(ngModel)]="editFormation.type" name="edit_type" required>
+        
 
         <label>Intitulé :</label>
         <input type="text" [(ngModel)]="editFormation.intitule" name="edit_intitule" required>
@@ -105,15 +104,36 @@
           </select>
         </div>
 
-        <label>Parcours :</label>
-        <select [(ngModel)]="editFormation.parcours" name="edit_parcours" required>
-          <option value="Milles">Milles</option>
-          <option value="Cassiope">Cassiope</option>
-          <option value="Eflou">E-flo</option>
-            <option value="EKIP">EKIP</option>
-              <option value="OnBording">OnBording</option>
-        </select>
-      </div>
+   <label>Parcours :</label>
+<select [(ngModel)]="editFormation.parcours" name="edit_parcours" required>
+  <option value="">Sélectionnez...</option>
+  <option value="Milles">Milles</option>
+  <option value="Cassiope">Cassiope</option>
+  <option value="E-flo">E-flo</option>
+  <option value="EKIP">EKIP</option>
+  <option value="OnBoarding">OnBoarding</option>
+</select>
+<div *ngIf="editFormation.parcours === 'OnBoarding'" class="form-group">
+  <label>Pays :</label>
+  
+  <div class="checkbox-group">
+    <div *ngFor="let p of paysList" class="checkbox-item">
+      <input 
+        type="checkbox"
+        [id]="'pays-' + p.id_pays"
+        [value]="p.id_pays"
+        [checked]="isPaysSelected(p.id_pays)"
+        (change)="togglePays(p.id_pays)"
+      />
+      <label [for]="'pays-' + p.id_pays">{{ p.nom }}</label>
+    </div>
+  </div>
+</div>
+
+
+
+
+</div>
 
       <!-- COLONNE DROITE -->
       <div class="col">
@@ -168,9 +188,7 @@
           <option value="expert">Expert</option>
         </select>
 
-        <label>Type :</label>
-        <input type="text" [(ngModel)]="newFormation.type" name="type" required>
-
+       
         <label>Intitulé :</label>
         <input type="text" [(ngModel)]="newFormation.intitule" name="intitule" required>
 
@@ -185,7 +203,7 @@
           <option value="Onboarding">Onboarding</option>
           <option value="Solutions">Solutions</option>
           <option value="Linguistique">Linguistique</option>
-             <option value="transversale">Transversale</option>
+             <option value="Transversale">Transversale</option>
           
         </select>
 
@@ -195,29 +213,49 @@
           <option value="externe">Externe</option>
         </select>
 
+                <!-- EXTERNE -->
         <div *ngIf="newFormation.interne_externe === 'externe'">
           <label>Prestataire :</label>
-          <input type="text" [(ngModel)]="newFormation.prestataire" name="prestataire" placeholder="Nom du prestataire">
+          <input type="text" [(ngModel)]="newFormation.prestataire" name="edit_prestataire">
         </div>
 
+        <!-- INTERNE -->
         <div *ngIf="newFormation.interne_externe === 'interne'">
+           <!-- INTERNE -->
           <label>Formateur interne :</label>
-          <select [(ngModel)]="newFormation.id_formateur" name="id_formateur">
-            <option *ngFor="let f of formateurs" [value]="f.id_user">
+          <select [(ngModel)]="newFormation.id_formateur" name="edit_id_formateur">
+         <option *ngFor="let f of formateurs" [value]="f.id_user">
               {{ f.nom }} {{ f.prenom }}
             </option>
           </select>
         </div>
-
-        <label>Parcours :</label>
-        <select [(ngModel)]="newFormation.parcours" name="parcours" required>
-          <option value="Milles">Milles</option>
-          <option value="Cassiope">Cassiope</option>
-          <option value="Eflou">E-flo</option>
-            <option value="Ekip">EKIP</option>
-              <option value="OnBording">OnBording</option>
-        </select>
-      </div>
+        
+<label>Parcours :</label>
+<select [(ngModel)]="newFormation.parcours" name="edit_parcours" required>
+  <option value="">Sélectionnez...</option>
+  <option value="Milles">Milles</option>
+  <option value="Cassiope">Cassiope</option>
+  <option value="E-flo">E-flo</option>
+  <option value="EKIP">EKIP</option>
+  <option value="OnBoarding">OnBoarding</option>
+</select>
+<div *ngIf="newFormation.parcours === 'OnBoarding'" class="form-group">
+  <label>Pays :</label>
+  
+  <div class="checkbox-group">
+    <div *ngFor="let p of paysList" class="checkbox-item">
+      <input 
+        type="checkbox"
+        [id]="'new-pays-' + p.id_pays"
+        [value]="p.id_pays"
+        [checked]="isNewPaysSelected(p.id_pays)"
+        (change)="toggleNewPays(p.id_pays)"
+      />
+      <label [for]="'new-pays-' + p.id_pays">{{ p.nom }}</label>
+    </div>
+  </div>
+</div>
+</div>
 
       <!-- COLONNE DROITE -->
       <div class="col">

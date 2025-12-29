@@ -199,88 +199,86 @@ export const getFormations = async (req, res) => {
   }
 };
 export const addFormation = async (req, res) => {
-  const {
-    axe,
-    type,
-    intitule,
-    population,
-    niveau,
-    prerequis,
-    id_formateur,
-    interne_externe,
-    prestataire,
-    parcours,
-    duree,
-    objectifs = [],
-    competences = []
-  } = req.body;
-
   try {
-    // 1️⃣ Insert formation
+    const f = req.body;
+
+    // 1️⃣ Generate axe_code
+    const prefix = f.axe.substring(0, 4).toUpperCase();
+    const pattern = `${prefix}#`;
+    const [existing] = await db.query(
+      `SELECT axe_code FROM formation WHERE axe_code LIKE ? ORDER BY id_formation DESC LIMIT 1`,
+      [`${pattern}%`]
+    );
+
+    let nextNumber = 1;
+    if (existing.length > 0) {
+      const lastNumber = parseInt(existing[0].axe_code.split('#')[1], 10);
+      nextNumber = lastNumber + 1;
+    }
+
+    const axe_code = `${pattern}${nextNumber}`;
+
+    // 2️⃣ Insert formation with etat = 'validee'
     const [result] = await db.query(
-      `INSERT INTO formation
-      (axe, type, intitule, population, niveau, prerequis,
-       id_formateur, interne_externe, prestataire, parcours, duree)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO formation 
+      (axe, axe_code, intitule, population, niveau, prerequis, id_formateur, interne_externe, parcours, duree, prestataire, etat)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        axe,
-        type,
-        intitule,
-        population,
-        niveau,
-        prerequis,
-        id_formateur,
-        interne_externe,
-        prestataire,
-        parcours,
-        duree
+        f.axe, axe_code,f.intitule, f.population, f.niveau,
+        f.prerequis, f.id_formateur, f.interne_externe, f.parcours, f.duree, f.prestataire, 'validee'
       ]
     );
 
-    const id_formation = result.insertId;
+    const idFormation = result.insertId;
 
-    // 2️⃣ Insert objectifs (SAFE)
-    if (Array.isArray(objectifs)) {
-      for (const id_objectif of objectifs) {
-        if (
-          !id_objectif ||
-          isNaN(id_objectif)
-        ) continue;
-
-        await db.query(
-          `INSERT INTO formation_objectif (id_formation, id_objectif)
-           VALUES (?, ?)`,
-          [id_formation, Number(id_objectif)]
-        );
+    // 3️⃣ Insert objectifs (IDs only)
+    if (Array.isArray(f.objectifs) && f.objectifs.length > 0) {
+      for (let objId of f.objectifs) {
+        const id = Number(objId);
+        if (!isNaN(id)) {
+          await db.query(
+            `INSERT INTO formation_objectif (id_formation, id_objectif) VALUES (?, ?)`,
+            [idFormation, id]
+          );
+        }
       }
     }
 
-    // 3️⃣ Insert competences (SAFE)
-    if (Array.isArray(competences)) {
-      for (const id_competence of competences) {
-        if (
-          !id_competence ||
-          isNaN(id_competence)
-        ) continue;
-
-        await db.query(
-          `INSERT INTO formation_competence (id_formation, id_competence)
-           VALUES (?, ?)`,
-          [id_formation, Number(id_competence)]
-        );
+    // 4️⃣ Insert competences (IDs only)
+    if (Array.isArray(f.competences) && f.competences.length > 0) {
+      for (let compId of f.competences) {
+        const id = Number(compId);
+        if (!isNaN(id)) {
+          await db.query(
+            `INSERT INTO formation_competence (id_formation, id_competence) VALUES (?, ?)`,
+            [idFormation, id]
+          );
+        }
       }
     }
 
-    res.status(201).json({
-      message: 'Formation created',
-      id_formation
-    });
+    // 5️⃣ Insert pays (IDs only)
+    if (Array.isArray(f.pays) && f.pays.length > 0) {
+      for (let paysId of f.pays) {
+        const id = Number(paysId);
+        if (!isNaN(id)) {
+          await db.query(
+            `INSERT INTO formation_pays (id_formation, id_pays) VALUES (?, ?)`,
+            [idFormation, id]
+          );
+        }
+      }
+    }
 
-  } catch (error) {
-    console.error('ADD FORMATION ERROR:', error);
-    res.status(500).json({ error: 'Server error' });
+    // 6️⃣ Return success
+    res.status(201).json({ id_formation: idFormation, axe_code, etat: 'validee' });
+
+  } catch (err) {
+    console.error('ADD FORMATION ERROR:', err);
+    res.status(500).json({ error: "Erreur lors de l'ajout de la formation" });
   }
 };
+
 export const addFormationFor = async (req, res) => {
   try {
     const f = req.body;
@@ -304,12 +302,11 @@ export const addFormationFor = async (req, res) => {
     // 2️⃣ Insert formation with 'en_attente' etat
     const [result] = await db.query(
       `INSERT INTO formation 
-      (axe, axe_code, type, intitule, population, niveau, prerequis, id_formateur, interne_externe, parcours, duree, prestataire, etat)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (axe, axe_code, intitule, population, niveau, prerequis, id_formateur, interne_externe, parcours, duree, prestataire, etat)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         f.axe,
         axe_code,
-        f.type || 'Formation',
         f.intitule,
         f.population,
         f.niveau,
@@ -402,7 +399,7 @@ export const getFormateurs = async (req, res) => {
          prenom,
          email
        FROM users
-       WHERE id_role = 2`
+       WHERE id_role = 1`
     );
 
     res.json(rows);
@@ -416,15 +413,9 @@ export const updateFormation = async (req, res) => {
     const id = req.params.id;
     const f = req.body;
 
-    /* ---------- Validation ---------- */
-    // Validation supprimée - tous les champs sont maintenant optionnels
+    /* ---------- Defaults ---------- */
 
-    // Valeur par défaut pour "type" si non fourni
-    if (!f.type) {
-      f.type = 'Formation';
-    }
-
-    /* ---------- Validation interne / externe ---------- */
+    /* ---------- Interne / Externe logic ---------- */
     if (f.interne_externe === "interne") {
       if (!f.id_formateur) {
         return res.status(400).json({ error: "Formateur interne obligatoire" });
@@ -449,13 +440,12 @@ export const updateFormation = async (req, res) => {
     /* ---------- UPDATE formation ---------- */
     await db.query(
       `UPDATE formation SET
-        axe = ?, type = ?, intitule = ?, population = ?, niveau = ?,
+        axe = ?, intitule = ?, population = ?, niveau = ?,
         prerequis = ?, id_formateur = ?, interne_externe = ?,
         parcours = ?, duree = ?, prestataire = ?
        WHERE id_formation = ?`,
       [
         f.axe,
-        f.type,
         f.intitule,
         f.population || "",
         f.niveau,
@@ -464,29 +454,57 @@ export const updateFormation = async (req, res) => {
         f.interne_externe,
         f.parcours || "",
         f.duree || "",
-        f.prestataire || "",
+        f.prestataire || null,
         id
       ]
     );
 
     /* ---------- Objectifs ---------- */
-    await db.query("DELETE FROM formation_objectif WHERE id_formation = ?", [id]);
-    const objectifs = [...new Set(f.objectifs || [])];
-    for (const objId of objectifs) {
-      await db.query(
-        "INSERT INTO formation_objectif (id_formation, id_objectif) VALUES (?, ?)",
-        [id, objId]
-      );
+    await db.query(
+      "DELETE FROM formation_objectif WHERE id_formation = ?",
+      [id]
+    );
+
+    if (Array.isArray(f.objectifs)) {
+      const objectifs = [...new Set(f.objectifs.map(Number))].filter(n => !isNaN(n));
+      for (const objId of objectifs) {
+        await db.query(
+          "INSERT INTO formation_objectif (id_formation, id_objectif) VALUES (?, ?)",
+          [id, objId]
+        );
+      }
     }
 
     /* ---------- Compétences ---------- */
-    await db.query("DELETE FROM formation_competence WHERE id_formation = ?", [id]);
-    const competences = [...new Set(f.competences || [])];
-    for (const compId of competences) {
-      await db.query(
-        "INSERT INTO formation_competence (id_formation, id_competence) VALUES (?, ?)",
-        [id, compId]
-      );
+    await db.query(
+      "DELETE FROM formation_competence WHERE id_formation = ?",
+      [id]
+    );
+
+    if (Array.isArray(f.competences)) {
+      const competences = [...new Set(f.competences.map(Number))].filter(n => !isNaN(n));
+      for (const compId of competences) {
+        await db.query(
+          "INSERT INTO formation_competence (id_formation, id_competence) VALUES (?, ?)",
+          [id, compId]
+        );
+      }
+    }
+
+    /* ---------- Pays ---------- */
+    await db.query(
+      "DELETE FROM formation_pays WHERE id_formation = ?",
+      [id]
+    );
+
+    if (Array.isArray(f.pays)) {
+      const pays = [...new Set(f.pays.map(Number))].filter(n => !isNaN(n));
+      for (const paysId of pays) {
+        await db.query(
+          "INSERT INTO formation_pays (id_formation, id_pays) VALUES (?, ?)",
+          [id, paysId]
+        );
+      }
     }
 
     res.json({ message: "Formation mise à jour avec succès" });
@@ -501,20 +519,28 @@ export const updateFormation = async (req, res) => {
 };
 
 
+
 export const deleteFormation = async (req, res) => {
   const { id } = req.params;
 
   try {
-  
+    /* ---------- Delete relations first ---------- */
     await db.query(
       `DELETE FROM formation_objectif WHERE id_formation = ?`,
       [id]
     );
+
     await db.query(
       `DELETE FROM formation_competence WHERE id_formation = ?`,
       [id]
     );
 
+    await db.query(
+      `DELETE FROM formation_pays WHERE id_formation = ?`,
+      [id]
+    );
+
+    /* ---------- Delete formation ---------- */
     await db.query(
       `DELETE FROM formation WHERE id_formation = ?`,
       [id]
@@ -523,7 +549,7 @@ export const deleteFormation = async (req, res) => {
     res.json({ message: "Formation deleted successfully" });
 
   } catch (error) {
-    console.error(error);
+    console.error("DELETE formation error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -665,5 +691,59 @@ export const getFormationsByFormateur = async (req, res) => {
   } catch (err) {
     console.error('Erreur serveur:', err);
     return res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+export const getPays = async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT id_pays, nom
+      FROM pays
+      ORDER BY nom ASC
+    `);
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+export const getOnboardingFormationsByPays = async (req, res) => {
+  try {
+    const { pays } = req.query;
+
+    if (!pays) {
+      return res.status(400).json({ error: "Pays requis" });
+    }
+
+    const paysIds = pays
+      .split(',')
+      .map(id => parseInt(id, 10))
+      .filter(Boolean);
+
+    if (paysIds.length === 0) {
+      return res.status(400).json({ error: "Pays invalide" });
+    }
+
+    const placeholders = paysIds.map(() => '?').join(',');
+
+    const [rows] = await db.query(
+      `
+      SELECT DISTINCT f.*
+      FROM formation f
+      JOIN formation_pays fp ON fp.id_formation = f.id_formation
+      WHERE f.parcours = 'OnBoarding'
+        AND f.etat = 'validee'
+        AND fp.id_pays IN (${placeholders})
+      `,
+      paysIds
+    );
+
+    res.json(rows);
+
+  } catch (err) {
+    console.error("GET ONBOARDING BY PAYS ERROR:", err);
+    res.status(500).json({
+      error: "Erreur lors de la récupération des formations OnBoarding"
+    });
   }
 };

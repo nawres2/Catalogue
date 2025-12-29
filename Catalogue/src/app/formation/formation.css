@@ -1,23 +1,29 @@
-
 body, html {
   height: 100%;
   margin: 0;
-  display: flex;
-  align-items: center;    /* centre verticalement */
-  justify-content: center; /* centre horizontalement */
+  justify-content: center;
 }
+
 /* ----------------------------- */
 /*     CONTENEUR GLOBAL         */
 /* ----------------------------- */
 .container {
   padding: 30px;
   max-width: 1100px;
-  margin: auto;
+  margin: 20px auto;
   color: #3C3C3C;
   font-family: "Inter", sans-serif;
-    justify-content: center; /* centre horizontalement */
-    margin-right: 50px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-left: 20px;
+  
+}
 
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+    margin: 10px auto;
+  }
 }
 
 /* ----------------------------- */
@@ -25,13 +31,12 @@ body, html {
 /* ----------------------------- */
 .header {
   display: flex;
-  /*-justify-content: space-between;*/
   align-items: center;
   margin-bottom: 25px;
 }
 
 h2 {
-  font-size: 26px;
+  font-size: clamp(20px, 4vw, 26px);
   font-weight: 700;
   color: #3C3C3C;
 }
@@ -44,6 +49,8 @@ h2 {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .header-with-buttons h2 {
@@ -53,6 +60,7 @@ h2 {
 .buttons-container {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .btn-add {
@@ -61,13 +69,14 @@ h2 {
   border: none;
   padding: 10px 18px;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: clamp(13px, 2vw, 15px);
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
   transition: 0.2s;
+  white-space: nowrap;
 }
 
 .btn-add:hover {
@@ -77,8 +86,54 @@ h2 {
 /* ----------------------------- */
 /*            TABLEAU            */
 /* ----------------------------- */
+.table-wrapper {
+  overflow-x: auto;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+/* Ajustez les largeurs des colonnes dans votre fichier CSS existant */
+
+/* Colonne Intitulé - plus petite */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+  width: 120px;
+  max-width: 120px;
+}
+
+/* Colonnes Objectifs et Compétences - plus grandes */
+.table th:nth-child(5),
+.table td:nth-child(5),
+.table th:nth-child(6),
+.table td:nth-child(6) {
+  width: 250px;
+  min-width: 200px;
+}
+
+/* Autres colonnes - largeur standard */
+.table th:nth-child(2),
+.table td:nth-child(2),
+.table th:nth-child(3),
+.table td:nth-child(3),
+.table th:nth-child(4),
+.table td:nth-child(4) {
+  width: 100px;
+}
+
+/* Colonne Actions - fixe */
+.table th:nth-child(7),
+.table td:nth-child(7) {
+  width: 100px;
+}
+
+/* Pour que le texte s'adapte dans les cellules */
+.table td {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 .table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   background: white;
   border-radius: 12px;
@@ -87,15 +142,25 @@ h2 {
 }
 
 .table thead {
-  background: #3C3C3C; /* gris anthracite corporate */
+  background: #3C3C3C;
   color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .table th,
 .table td {
   padding: 16px;
   text-align: left;
-  font-size: 15px;
+  font-size: clamp(13px, 2vw, 15px);
+}
+
+@media (max-width: 768px) {
+  .table th,
+  .table td {
+    padding: 10px;
+  }
 }
 
 tbody tr {
@@ -112,25 +177,25 @@ tbody tr:last-child {
 .badge {
   padding: 6px 14px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: clamp(11px, 1.8vw, 13px);
   font-weight: 600;
   display: inline-block;
   text-transform: capitalize;
+  white-space: nowrap;
 }
 
-/* Couleurs badges */
 .badge.avancé {
-  background-color: #C65B5B; /* rouge élégant */
+  background-color: #C65B5B;
   color: white;
 }
 
 .badge.intermédiaire {
-  background-color: #E8D469; /* jaune doux */
+  background-color: #E8D469;
   color: #4A4A00;
 }
 
 .badge.débutant {
-  background-color: #8AA73D; /* vert Teamwill */
+  background-color: #8AA73D;
   color: white;
 }
 
@@ -140,6 +205,7 @@ tbody tr:last-child {
 .actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .icon {
@@ -153,11 +219,11 @@ tbody tr:last-child {
 }
 
 .icon.edit:hover {
-  background: #D5E4B6; /* vert pastel Teamwill */
+  background: #D5E4B6;
 }
 
 .icon.delete:hover {
-  background: #F5C3C3; /* rouge pastel */
+  background: #F5C3C3;
 }
 
 /* ----------------------------- */
@@ -174,6 +240,8 @@ tbody tr:last-child {
   justify-content: center;
   align-items: center;
   z-index: 2000;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 /* ----------------------------- */
@@ -181,14 +249,23 @@ tbody tr:last-child {
 /* ----------------------------- */
 .modal {
   width: 90%;
-  max-width: 1000px;  /* modal plus large */
+  max-width: 1000px;
   background: #fff;
   padding: 25px;
   border-radius: 14px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.25);
   animation: show 0.25s ease-out;
   max-height: 90vh;
-  overflow-y: auto; /* scroll si contenu trop grand */
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .modal {
+    width: 95%;
+    padding: 20px;
+    max-height: 85vh;
+  }
 }
 
 @keyframes show {
@@ -196,7 +273,6 @@ tbody tr:last-child {
   to   { opacity: 1; transform: scale(1); }
 }
 
-/* Titre modal */
 .modal h2 {
   margin-top: 0;
   margin-bottom: 20px;
@@ -207,13 +283,25 @@ tbody tr:last-child {
 .form-grid {
   display: flex;
   gap: 30px;
+  flex-wrap: wrap;
 }
 
 .form-grid .col {
-  flex: 1; /* chaque colonne prend la moitié */
+  flex: 1;
+  min-width: 280px;
   display: flex;
   flex-direction: column;
   gap: 15px;
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    gap: 20px;
+  }
+  
+  .form-grid .col {
+    min-width: 100%;
+  }
 }
 
 /* Inputs et textarea */
@@ -225,13 +313,14 @@ tbody tr:last-child {
   border-radius: 8px;
   border: 1px solid #ddd;
   font-size: 14px;
+  box-sizing: border-box;
 }
 
 /* Boutons Ajouter objectif/compétence */
 .btn-add-small {
   margin-top: 5px;
   padding: 5px 10px;
-  font-size: 0.9em;
+  font-size: clamp(12px, 2vw, 14px);
   border: none;
   border-radius: 6px;
   background-color: #8AA73D;
@@ -249,6 +338,7 @@ tbody tr:last-child {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
+  flex-wrap: wrap;
 }
 
 .btn-save {
@@ -275,22 +365,23 @@ tbody tr:last-child {
   align-items: center;
   gap: 8px;
   margin-bottom: 6px;
-}
-
-/* Scroll pour table ou modal si nécessaire */
-.table-wrapper {
-  max-height: 60vh;
-  overflow-y: auto;
+  flex-wrap: wrap;
 }
 
 .guide-card {
-  background-color: #F7F9F3; /* très léger vert/blanc */
-  border-left: 6px solid #8AA73D; /* vert Teamwill */
+  background-color: #F7F9F3;
+  border-left: 6px solid #8AA73D;
   padding: 20px 25px;
   margin-bottom: 25px;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   transition: transform 0.2s;
+}
+
+@media (max-width: 768px) {
+  .guide-card {
+    padding: 15px 20px;
+  }
 }
 
 .guide-card:hover {
@@ -299,7 +390,7 @@ tbody tr:last-child {
 
 .guide-title {
   margin: 0 0 12px 0;
-  font-size: 18px;
+  font-size: clamp(16px, 3vw, 18px);
   font-weight: 600;
   color: #3C3C3C;
 }
@@ -307,7 +398,7 @@ tbody tr:last-child {
 .guide-content {
   margin: 0;
   padding-left: 20px;
-  font-size: 14px;
+  font-size: clamp(13px, 2vw, 14px);
   color: #555;
 }
 
@@ -315,9 +406,7 @@ tbody tr:last-child {
   margin-bottom: 8px;
 }
 
-
 /* ================= GUIDE MODAL ================= */
-
 .guide-modal {
   max-width: 700px;
 }
@@ -333,6 +422,7 @@ tbody tr:last-child {
   justify-content: center;
   gap: 12px;
   margin-bottom: 25px;
+  flex-wrap: wrap;
 }
 
 .step {
@@ -362,6 +452,7 @@ tbody tr:last-child {
 .step-content h3 {
   margin-bottom: 12px;
   color: #3C3C3C;
+  font-size: clamp(16px, 3vw, 20px);
 }
 
 .step-content ul {
@@ -371,28 +462,29 @@ tbody tr:last-child {
 
 .step-content li {
   padding: 6px 0;
-  font-size: 14px;
+  font-size: clamp(13px, 2vw, 14px);
   color: #555;
 }
 
-/* ACTIONS */
 .guide-actions {
   justify-content: space-between;
 }
-/* ===== GUIDE MODAL PREMIUM ===== */
 
-.guide-modal {
-  max-width: 720px;
-  padding: 30px;
+/* ===== GUIDE MODAL PREMIUM ===== */
+.guide-modal-ux {
+  max-width: 680px;
+  padding: 35px;
+  position: relative;
 }
 
-.guide-header {
-  text-align: center;
-  margin-bottom: 25px;
+@media (max-width: 768px) {
+  .guide-modal-ux {
+    padding: 25px;
+  }
 }
 
 .guide-header p {
-  font-size: 14px;
+  font-size: clamp(12px, 2vw, 14px);
   color: #777;
 }
 
@@ -402,6 +494,8 @@ tbody tr:last-child {
   justify-content: space-between;
   margin-bottom: 30px;
   position: relative;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .stepper-line::before {
@@ -415,9 +509,17 @@ tbody tr:last-child {
   z-index: 0;
 }
 
+@media (max-width: 768px) {
+  .stepper-line::before {
+    display: none;
+  }
+}
+
 .step-wrapper {
   text-align: center;
   z-index: 1;
+  flex: 1;
+  min-width: 80px;
 }
 
 .step-circle {
@@ -441,7 +543,7 @@ tbody tr:last-child {
 
 .step-label {
   margin-top: 6px;
-  font-size: 12px;
+  font-size: clamp(10px, 1.5vw, 12px);
   color: #555;
 }
 
@@ -452,6 +554,13 @@ tbody tr:last-child {
   border-radius: 14px;
   min-height: 180px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+@media (max-width: 768px) {
+  .guide-content-card {
+    padding: 20px;
+    min-height: 150px;
+  }
 }
 
 /* ROLE CARDS */
@@ -489,6 +598,8 @@ tbody tr:last-child {
   display: flex;
   justify-content: space-between;
   margin-top: 25px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .btn-primary {
@@ -498,6 +609,7 @@ tbody tr:last-child {
   padding: 8px 18px;
   border-radius: 10px;
   cursor: pointer;
+  font-size: clamp(13px, 2vw, 15px);
 }
 
 .btn-outline {
@@ -506,17 +618,12 @@ tbody tr:last-child {
   padding: 8px 18px;
   border-radius: 10px;
   cursor: pointer;
+  font-size: clamp(13px, 2vw, 15px);
 }
+
 /* ===== OVERLAY ===== */
 .guide-overlay {
   backdrop-filter: blur(6px);
-}
-
-/* ===== MODAL ===== */
-.guide-modal-ux {
-  max-width: 680px;
-  padding: 35px;
-  position: relative;
 }
 
 /* CLOSE */
@@ -538,11 +645,11 @@ tbody tr:last-child {
 }
 
 .guide-top h2 {
-  font-size: 22px;
+  font-size: clamp(18px, 4vw, 22px);
 }
 
 .guide-top p {
-  font-size: 14px;
+  font-size: clamp(12px, 2vw, 14px);
   color: #777;
 }
 
@@ -567,6 +674,13 @@ tbody tr:last-child {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 10px;
+}
+
+@media (max-width: 768px) {
+  .guide-body {
+    min-height: 180px;
+  }
 }
 
 /* STEP */
@@ -601,6 +715,7 @@ tbody tr:last-child {
 .role-ux li {
   margin: 8px 0;
   color: #555;
+  font-size: clamp(13px, 2vw, 15px);
 }
 
 .role-ux.admin .icon-circle {
@@ -616,6 +731,8 @@ tbody tr:last-child {
   display: flex;
   justify-content: space-between;
   margin-top: 30px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .btn-main {
@@ -625,6 +742,7 @@ tbody tr:last-child {
   padding: 9px 20px;
   border-radius: 12px;
   cursor: pointer;
+  font-size: clamp(13px, 2vw, 15px);
 }
 
 .btn-ghost {
@@ -633,6 +751,7 @@ tbody tr:last-child {
   padding: 9px 20px;
   border-radius: 12px;
   cursor: pointer;
+  font-size: clamp(13px, 2vw, 15px);
 }
 
 /* ANIMATION */
@@ -646,10 +765,17 @@ tbody tr:last-child {
     transform: translateY(0);
   }
 }
+
 /* ===== MODAL CLEAN ===== */
 .guide-modal-clean {
   max-width: 640px;
   padding: 32px;
+}
+
+@media (max-width: 768px) {
+  .guide-modal-clean {
+    padding: 24px;
+  }
 }
 
 /* HEADER */
@@ -659,7 +785,7 @@ tbody tr:last-child {
 }
 
 .guide-header-clean p {
-  font-size: 13px;
+  font-size: clamp(11px, 2vw, 13px);
   color: #888;
 }
 
@@ -684,6 +810,13 @@ tbody tr:last-child {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 10px;
+}
+
+@media (max-width: 768px) {
+  .guide-content-clean {
+    min-height: 180px;
+  }
 }
 
 .step-clean {
@@ -693,6 +826,7 @@ tbody tr:last-child {
 
 .step-clean p {
   color: #555;
+  font-size: clamp(13px, 2vw, 15px);
 }
 
 /* ROLE CARD */
@@ -700,6 +834,12 @@ tbody tr:last-child {
   padding: 22px;
   border-radius: 12px;
   background: #F8F8F8;
+}
+
+@media (max-width: 768px) {
+  .role-card-clean {
+    padding: 18px;
+  }
 }
 
 .role-card-clean.admin {
@@ -718,6 +858,7 @@ tbody tr:last-child {
 .role-card-clean li {
   margin: 8px 0;
   color: #555;
+  font-size: clamp(13px, 2vw, 15px);
 }
 
 /* FOOTER */
@@ -725,22 +866,18 @@ tbody tr:last-child {
   display: flex;
   justify-content: space-between;
   margin-top: 30px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 /* BUTTONS */
-.btn-primary {
-  background: #8AA73D;
-  color: white;
-  border: none;
-  padding: 9px 22px;
-  border-radius: 10px;
-}
-
 .btn-secondary {
   background: transparent;
   border: 1px solid #ccc;
   padding: 9px 22px;
   border-radius: 10px;
+  font-size: clamp(13px, 2vw, 15px);
+  cursor: pointer;
 }
 
 /* ANIMATION */
@@ -753,4 +890,41 @@ tbody tr:last-child {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #8AA73D;
+}
+
+.checkbox-item label {
+  cursor: pointer;
+  color: #334155;
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+.checkbox-item input[type="checkbox"]:checked + label {
+  color: #8AA73D;
+  font-weight: 600;
 }

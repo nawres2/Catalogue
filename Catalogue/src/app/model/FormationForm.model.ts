@@ -12,4 +12,5 @@ export interface FormationForm {
   prestataire?: string;
   objectifs: string[];
   competences: string[];
+  pays?: number[];
 }
