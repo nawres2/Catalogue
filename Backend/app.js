@@ -4,6 +4,7 @@ import authRoutes from "./Routes/auth.routes.js";
 import dotenv from "dotenv";
 import userRoutes from "./Routes/user.routes.js";
 import formationRequestRoutes from './Routes/formation_request.routes.js';
+import onboardingRoutes from './Routes/onboardingRoutes.js';
 
 import cors from 'cors';
 const app = express();
@@ -31,7 +32,7 @@ app.use("/api", formationRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', formationRequestRoutes);
 
-
+app.use('/api/onboarding', onboardingRoutes);
 
 // ============ GESTION DES ERREURS ============
 // Gestion 404

@@ -6,6 +6,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "dev": "nodemon app.js"
   },
   "keywords": [],
@@ -19,9 +20,14 @@
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "mysql2": "^3.15.3"
+    "mysql2": "^3.15.3",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@cucumber/cucumber": "^12.5.0",
+    "@playwright/test": "^1.57.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "playwright": "^1.57.0"
   }
 }

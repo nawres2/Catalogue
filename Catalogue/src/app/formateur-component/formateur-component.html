@@ -1,8 +1,14 @@
+<!-- ================= HTML TEMPLATE ================= -->
 <div class="background-shapes">
   <div class="shape shape1"></div>
   <div class="shape shape2"></div>
   <div class="shape shape3"></div>
 </div>
+
+<!-- BOUTON AIDE FLOTTANT -->
+<button class="help-button" (click)="openGuide()" [title]="getLabel('Aide')">
+  <span>?</span>
+</button>
 
 <div class="container">
   <div class="form-card">
@@ -10,27 +16,27 @@
 
       <!-- ================= INFORMATIONS GÉNÉRALES ================= -->
       <div class="form-section">
-        <h2 class="section-title">Informations Générales</h2>
+        <h2 class="section-title">{{ getLabel('Informations Générales') }}</h2>
 
         <div class="form-grid">
           <div class="form-group full-width">
-            <label>Intitulé de la formation *</label>
+            <label>{{ getLabel('Intitulé de la formation *') }}</label>
             <input
               type="text"
               name="intitule"
               [(ngModel)]="newFormation.intitule"
-              placeholder="Ex: Formation Angular avancé"
+              [placeholder]="getLabel('Ex: Formation Angular avancé')"
               required
             />
           </div>
 
           <div class="form-group">
-            <label>Population cible *</label>
+            <label>{{ getLabel('Population cible *') }}</label>
             <input
               type="text"
               name="population"
               [(ngModel)]="newFormation.population"
-              placeholder="Ex: Développeurs, Consultants..."
+              [placeholder]="getLabel('Ex: Développeurs, Consultants...')"
               required
             />
           </div>
@@ -38,120 +44,121 @@
 
         <div class="form-grid three-cols">
           <div class="form-group">
-            <label>Axe *</label>
+            <label>{{ getLabel('Axe *') }}</label>
             <select name="axe" [(ngModel)]="newFormation.axe" required>
-              <option value="" disabled>Sélectionnez...</option>
-              <option value="Technique">Technique</option>
-              <option value="Fonctionnelle">Fonctionnelle</option>
-              <option value="Métier">Métier</option>
-              <option value="Onboarding">Onboarding</option>
-              <option value="Solutions">Solutions</option>
-              <option value="Linguistique">Linguistique</option>
-              <option value="Transversale">Transversale</option>
+              <option *ngFor="let opt of getAxeOptions()" [value]="opt.value" [disabled]="opt.value === ''">
+                {{ opt.label }}
+              </option>
             </select>
           </div>
 
           <div class="form-group">
-            <label>Niveau *</label>
+            <label>{{ getLabel('Niveau *') }}</label>
             <select name="niveau" [(ngModel)]="newFormation.niveau" required>
-              <option value="débutant">Débutant</option>
-              <option value="intermédiaire">Intermédiaire</option>
-              <option value="avancé">Avancé</option>
-              <option value="senior">Senior</option>
-              <option value="expert">Expert</option>
+              <option *ngFor="let opt of getNiveauOptions()" [value]="opt.value">
+                {{ opt.label }}
+              </option>
             </select>
           </div>
 
           <div class="form-group">
-            <label>Parcours</label>
+            <label>{{ getLabel('Parcours') }}</label>
             <select name="parcours" [(ngModel)]="newFormation.parcours">
-              <option value="">Sélectionnez...</option>
-              <option value="Milles">Milles</option>
-              <option value="Cassiope">Cassiope</option>
-              <option value="E-flo">E-flo</option>
-              <option value="EKIP">EKIP</option>
-              <option value="OnBoarding">OnBoarding</option>
+              <option *ngFor="let opt of getParcoursOptions()" [value]="opt.value">
+                {{ opt.label }}
+              </option>
             </select>
           </div>
-          <div *ngIf="newFormation.parcours === 'OnBoarding'" class="form-group">
-  <label>Pays :</label>
-  
-  <div class="checkbox-group">
-    <div *ngFor="let p of paysList" class="checkbox-item">
-      <input 
-        type="checkbox"
-        [id]="'new-pays-' + p.id_pays"
-        [value]="p.id_pays"
-        [checked]="isNewPaysSelected(p.id_pays)"
-        (change)="toggleNewPays(p.id_pays)"
-      />
-      <label [for]="'new-pays-' + p.id_pays">{{ p.nom }}</label>
-    </div>
-  </div>
-  </div>
-  </div>
+        </div>
+
+        <!-- PAYS - Affiché uniquement si Parcours = OnBoarding -->
+        <div *ngIf="newFormation.parcours === 'OnBoarding'" class="form-group full-width">
+          <label>{{ getLabel('Pays') }}</label>
+          <div class="checkbox-group">
+            <div *ngFor="let p of paysList" class="checkbox-item">
+              <input 
+                type="checkbox"
+                [id]="'new-pays-' + p.id_pays"
+                [value]="p.id_pays"
+                [checked]="isNewPaysSelected(p.id_pays)"
+                (change)="toggleNewPays(p.id_pays)"
+              />
+              <label [for]="'new-pays-' + p.id_pays">{{ p.nom }}</label>
+            </div>
+          </div>
+        </div>
 
         <div class="form-group">
-          <label>Durée</label>
+          <label>{{ getLabel('Durée') }}</label>
           <input
             type="text"
             name="duree"
             [(ngModel)]="newFormation.duree"
-            placeholder="Ex: 2 jours, 14 heures..."
+            [placeholder]="getLabel('Ex: 2 jours, 14 heures...')"
           />
         </div>
       </div>
 
-      <!-- ================= INTERNE / EXTERNE ================= -->
-      <div class="form-section">
-        <h2 class="section-title">Type de Formation</h2>
-        
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Interne  *</label>
-            <select
-              name="interne_externe"
-              [(ngModel)]="newFormation.interne_externe"
-              (ngModelChange)="onInterneExterneChange()"
-              required
-            >
-              <option value="interne">Interne</option>
-            </select>
-          </div>
+    <!-- ================= INTERNE / EXTERNE (Section modifiée) ================= -->
+<div class="form-section">
+  <h2 class="section-title">{{ getLabel('Type de Formation') }}</h2>
+  
+  <div class="form-grid">
+    <div class="form-group">
+      <label>{{ getLabel('Interne / Externe *') }}</label>
+      <select
+        name="interne_externe"
+        [(ngModel)]="newFormation.interne_externe"
+        (ngModelChange)="onInterneExterneChange()"
+        required
+      >
+        <option *ngFor="let opt of getInterneExterneOptions()" [value]="opt.value">
+          {{ opt.label }}
+        </option>
+      </select>
+    </div>
 
-          <!-- INTERNE - Show formateur selector -->
-          <div
-            class="form-group"
-            *ngIf="newFormation.interne_externe === 'interne'"
-          >
-            <label>Formateur interne *</label>
-          <select [(ngModel)]="newFormation.id_formateur" name="id_formateur">
-            <option *ngFor="let f of formateurs" [value]="f.id_user">
-              {{ f.nom }} {{ f.prenom }}
-            </option>
-          </select>
-          </div>
+    <!-- ✅ NOUVEAU : Afficher le nom du formateur connecté (non modifiable) -->
+    <div
+      class="form-group"
+      *ngIf="newFormation.interne_externe === 'interne'"
+    >
+      <label>{{ getLabel('Formateur interne *') }}</label>
+      <input
+        type="text"
+        [value]="currentUserName"
+        readonly
+        class="readonly-input"
+        style="background-color: #f5f5f5; cursor: not-allowed;"
+      />
+      <!-- Champ caché pour envoyer l'ID -->
+      <input
+        type="hidden"
+        [(ngModel)]="newFormation.id_formateur"
+        name="id_formateur"
+      />
+    </div>
 
-          <!-- EXTERNE - Show prestataire input -->
-          <div
-            class="form-group"
-            *ngIf="newFormation.interne_externe === 'externe'"
-          >
-            <label>Prestataire *</label>
-            <input
-              type="text"
-              name="prestataire"
-              [(ngModel)]="newFormation.prestataire"
-              placeholder="Nom du prestataire"
-              required
-            />
-          </div>
-        </div>
-      </div>
+    <!-- EXTERNE - Show prestataire input -->
+    <div
+      class="form-group"
+      *ngIf="newFormation.interne_externe === 'externe'"
+    >
+      <label>{{ getLabel('Prestataire *') }}</label>
+      <input
+        type="text"
+        name="prestataire"
+        [(ngModel)]="newFormation.prestataire"
+        [placeholder]="getLabel('Nom du prestataire')"
+        required
+      />
+    </div>
+  </div>
+</div>
 
       <!-- ================= OBJECTIFS ================= -->
       <div class="form-section">
-        <h2 class="section-title">Objectifs *</h2>
+        <h2 class="section-title">{{ getLabel('Objectifs *') }}</h2>
 
         <div
           class="form-group-with-remove"
@@ -161,7 +168,7 @@
             type="text"
             [(ngModel)]="newFormation.objectifs[i]"
             [name]="'objectif_' + i"
-            placeholder="Saisir un objectif"
+            [placeholder]="getLabel('Saisir un objectif')"
             required
           />
           <button
@@ -169,7 +176,7 @@
             class="btn-remove"
             *ngIf="newFormation.objectifs.length > 1"
             (click)="removeObjectif(i)"
-            title="Supprimer cet objectif"
+            [title]="getLabel('Supprimer cet objectif')"
           >
             ✕
           </button>
@@ -180,13 +187,13 @@
           class="btn-add-small"
           (click)="addObjectif()"
         >
-          + Ajouter un objectif
+          {{ getLabel('+ Ajouter un objectif') }}
         </button>
       </div>
 
       <!-- ================= COMPÉTENCES ================= -->
       <div class="form-section">
-        <h2 class="section-title">Compétences *</h2>
+        <h2 class="section-title">{{ getLabel('Compétences *') }}</h2>
 
         <div
           class="form-group-with-remove"
@@ -196,7 +203,7 @@
             type="text"
             [(ngModel)]="newFormation.competences[i]"
             [name]="'competence_' + i"
-            placeholder="Saisir une compétence"
+            [placeholder]="getLabel('Saisir une compétence')"
             required
           />
           <button
@@ -204,7 +211,7 @@
             class="btn-remove"
             *ngIf="newFormation.competences.length > 1"
             (click)="removeCompetence(i)"
-            title="Supprimer cette compétence"
+            [title]="getLabel('Supprimer cette compétence')"
           >
             ✕
           </button>
@@ -215,18 +222,18 @@
           class="btn-add-small"
           (click)="addCompetence()"
         >
-          + Ajouter une compétence
+          {{ getLabel('+ Ajouter une compétence') }}
         </button>
       </div>
 
       <!-- ================= PRÉREQUIS ================= -->
       <div class="form-section">
         <div class="form-group full-width">
-          <label>Prérequis *</label>
+          <label>{{ getLabel('Prérequis *') }}</label>
           <textarea
             name="prerequis"
             [(ngModel)]="newFormation.prerequis"
-            placeholder="Décrivez les prérequis nécessaires pour cette formation..."
+            [placeholder]="getLabel('Décrivez les prérequis nécessaires pour cette formation...')"
             rows="4"
             required
           ></textarea>
@@ -240,18 +247,216 @@
           class="cancel-btn"
           (click)="resetForm()"
         >
-          <span>Réinitialiser</span>
+          <span>{{ getLabel('Réinitialiser') }}</span>
         </button>
         <button
           type="submit"
           class="submit-btn"
           [disabled]="form.invalid"
         >
-          <span>Ajouter la formation</span>
+          <span>{{ getLabel('Ajouter la formation') }}</span>
           <span>✓</span>
         </button>
       </div>
 
     </form>
+  </div>
+</div>
+
+<!-- ================= MODAL GUIDE FORMATEUR ================= -->
+<div class="modal-backdrop guide-overlay" *ngIf="guideOpen">
+  <div class="modal guide-modal-clean">
+
+    <!-- HEADER -->
+    <div class="guide-header-clean">
+      <h2>{{ getLabel('Guide d\'utilisation') }}</h2>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-clean">
+      <div
+        class="progress-fill"
+        [style.width.%]="(currentGuideStep / totalGuideSteps) * 100">
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+   <!-- CONTENT -->
+    <div class="guide-content-clean">
+
+      <!-- STEP 1 : Bienvenue -->
+      <div *ngIf="currentGuideStep === 1" class="step-clean">
+        <h3>{{ getLabel('Bienvenue dans l\'espace Formateur') }}</h3>
+        <p>
+          {{ getLabel('En tant que formateur, vous pouvez créer et proposer des formations. Toute formation créée sera soumise à validation par l\'administrateur.') }}
+        </p>
+        
+        <div class="step-info-bar">
+          <span class="icon">💡</span>
+          <span class="text">{{ getLabel('Astuce : Toutes vos formations nécessitent une validation administrative') }}</span>
+        </div>
+      </div>
+
+      <!-- STEP 2 : Créer une formation -->
+      <div *ngIf="currentGuideStep === 2" class="step-clean">
+        <h3>{{ getLabel('Créer une formation') }}</h3>
+        <div class="guide-info-box">
+          <div class="info-icon">➕</div>
+          <div class="info-content">
+            <h4>{{ getLabel('Ajouter une formation') }}</h4>
+            <p>{{ getLabel('Remplissez le formulaire pour créer une nouvelle formation.') }}</p>
+            <div class="status-badge-info">
+              <span class="badge-inline pending">{{ getLabel('En attente') }}</span>
+              <span>{{ getLabel('Votre formation sera mise en attente de validation.') }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="step-info-bar">
+          <span class="icon">📝</span>
+          <span class="text">{{ getLabel('Plus votre formation est détaillée, plus elle a de chances d\'être validée rapidement') }}</span>
+        </div>
+      </div>
+
+      <!-- STEP 3 : Statuts des formations -->
+      <div *ngIf="currentGuideStep === 3" class="step-clean">
+        <p>{{ getLabel('Vos formations peuvent avoir 3 statuts différents :') }}</p>
+        
+        <div class="status-cards">
+          <div class="status-card pending-card">
+            <span class="badge-inline pending">{{ getLabel('En attente') }}</span>
+            <p>{{ getLabel('Formation soumise, en attente de validation par l\'administrateur') }}</p>
+          </div>
+          
+          <div class="status-card validated-card">
+            <span class="badge-inline validated">{{ getLabel('Validée') }}</span>
+            <p>{{ getLabel('Formation approuvée et publiée par l\'administrateur') }}</p>
+          </div>
+          
+          <div class="status-card rejected-card">
+            <span class="badge-inline rejected">{{ getLabel('Refusée') }}</span>
+            <p>{{ getLabel('Formation non approuvée. Vous pouvez la modifier et la resoumettre') }}</p>
+          </div>
+        </div>
+        
+        <div class="step-info-bar">
+          <span class="icon">⏱️</span>
+          <span class="text">{{ getLabel('Le délai de validation dépend de la disponibilité de l\'administrateur') }}</span>
+        </div>
+      </div>
+
+      <!-- STEP 4 : Modifier/Supprimer -->
+      <div *ngIf="currentGuideStep === 4" class="step-clean">
+        <h3>{{ getLabel('Modifier ou supprimer') }}</h3>
+        <div class="guide-info-box warning-box">
+          <div class="info-icon">⚠️</div>
+          <div class="info-content">
+            <h4>{{ getLabel('Limitation importante') }}</h4>
+            <p>{{ getLabel('Vous pouvez modifier ou supprimer uniquement les formations ayant le statut :') }}</p>
+            <ul class="guide-list">
+              <li><span class="badge-inline pending">{{ getLabel('En attente') }}</span></li>
+              <li><span class="badge-inline rejected">{{ getLabel('Refusée') }}</span></li>
+            </ul>
+            <p class="note-text">{{ getLabel('Les formations Validées ne peuvent plus être modifiées.') }}</p>
+          </div>
+        </div>
+        
+        <div class="step-info-bar">
+          <span class="icon">🔒</span>
+          <span class="text">{{ getLabel('Les formations validées sont protégées pour garantir leur intégrité') }}</span>
+        </div>
+      </div>
+
+      <!-- STEP 5 : Historique -->
+      <div *ngIf="currentGuideStep === 5" class="step-clean">
+        <h3>{{ getLabel('Consulter l\'historique') }}</h3>
+        <div class="guide-info-box">
+          <div class="info-icon">📋</div>
+          <div class="info-content">
+            <h4>{{ getLabel('Voir toutes vos formations') }}</h4>
+            <p>{{ getLabel('Dans le tableau, vous pouvez consulter l\'historique complet :') }}</p>
+            <ul class="guide-list">
+              <li> {{ getLabel('Formations en attente de validation') }}</li>
+              <li>{{ getLabel('Formations validées et publiées') }}</li>
+              <li>{{ getLabel('Formations refusées avec raison du refus') }}</li>
+            </ul>
+            <p class="tip-text">💡 {{ getLabel('Utilisez les filtres pour trier par statut') }}</p>
+          </div>
+        </div>
+        
+        <div class="step-info-bar">
+          <span class="icon">🔍</span>
+          <span class="text">{{ getLabel('Consultez régulièrement l\'historique pour suivre l\'évolution de vos formations') }}</span>
+        </div>
+      </div>
+
+      <!-- STEP 6 : Bonnes pratiques -->
+      <div *ngIf="currentGuideStep === 6" class="step-clean">
+        <h3>{{ getLabel('Bonnes pratiques') }}</h3>
+        <div class="practices-grid">
+          <div class="practice-card">
+            <div class="practice-icon">✓</div>
+            <div class="practice-content">
+              <h4>{{ getLabel('Objectifs clairs') }}</h4>
+              <p>{{ getLabel('Définissez des objectifs pédagogiques précis et mesurables') }}</p>
+            </div>
+          </div>
+          
+          <div class="practice-card">
+            <div class="practice-icon">✓</div>
+            <div class="practice-content">
+              <h4>{{ getLabel('Compétences associées') }}</h4>
+              <p>{{ getLabel('Listez les compétences que les participants vont acquérir') }}</p>
+            </div>
+          </div>
+          
+          <div class="practice-card">
+            <div class="practice-icon">✓</div>
+            <div class="practice-content">
+              <h4>{{ getLabel('Informations complètes') }}</h4>
+              <p>{{ getLabel('Renseignez tous les champs (durée, prérequis, population cible)') }}</p>
+            </div>
+          </div>
+          
+          <div class="practice-card">
+            <div class="practice-icon">✓</div>
+            <div class="practice-content">
+              <h4>{{ getLabel('Vérification') }}</h4>
+              <p>{{ getLabel('Relisez votre formation pour éviter les refus') }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="step-info-bar">
+          <span class="icon">🎯</span>
+          <span class="text">{{ getLabel('Une formation bien préparée a plus de chances d\'être validée du premier coup') }}</span>
+        </div>
+      </div>
+
+    </div>
+    <!-- ACTIONS -->
+    <div class="guide-footer-clean">
+      <button
+        class="btn-secondary"
+        (click)="previousStep()"
+        [disabled]="currentGuideStep === 1">
+        {{ getLabel('Précédent') }}
+      </button>
+
+      <button
+        class="btn-primary"
+        *ngIf="currentGuideStep < totalGuideSteps"
+        (click)="nextStep()">
+        {{ getLabel('Suivant') }}
+      </button>
+
+      <button
+        class="btn-primary"
+        *ngIf="currentGuideStep === totalGuideSteps"
+        (click)="closeGuide()">
+        {{ getLabel('Commencer') }}
+      </button>
+    </div>
+
   </div>
 </div>

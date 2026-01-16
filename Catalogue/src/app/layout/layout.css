@@ -40,6 +40,8 @@ app-sidebar.closed {
   min-width: 0;
   overflow-y: auto;
   padding: 25px;
+  margin-right: -20px;
+  padding: 0%;
 }
 
 /* ---- WRAPPER CENTRÉ ---- */
@@ -48,4 +50,5 @@ app-sidebar.closed {
   max-width: 1400px; /* Largeur max du contenu */
   margin: 0 auto; /* Centre horizontalement */
   padding: 20px;
+  margin-right: 100px;
 }

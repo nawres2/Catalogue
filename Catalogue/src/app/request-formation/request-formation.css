@@ -7,7 +7,9 @@
   margin: auto;
   color: #3C3C3C;
   font-family: "Inter", sans-serif;
+  margin-right: 120px;
 }
+
 
 /* ----------------------------- */
 /*            HEADER            */
@@ -51,13 +53,16 @@ h2 {
 /*            TABLEAU            */
 /* ----------------------------- */
 .table {
-  width: 100%;
+  width: 110%;
   border-collapse: collapse;
   background: white;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #DADADA;
+
+  table-layout: fixed; /* 👈 TRÈS IMPORTANT */
 }
+
 
 .table thead {
   background: #3C3C3C;
@@ -70,6 +75,23 @@ h2 {
   text-align: left;
   font-size: 15px;
 }
+.table th:first-child,
+.table td:first-child {
+  width: 250px;          /* ajuste selon ton besoin */
+  white-space: nowrap;
+}
+
+.table th:nth-child(4),
+.table td:nth-child(4) {
+  width: 250px;         /* ajuste selon ton besoin */
+  white-space: nowrap;
+}
+.table th:nth-child(5),
+.table td:nth-child(5) {
+  width: 150px;         /* ajuste selon ton besoin */
+  white-space: nowrap;
+}
+
 
 tbody tr {
   border-bottom: 1px solid #E3E3E3;
@@ -96,30 +118,41 @@ tbody tr:last-child {
   text-transform: capitalize;
 }
 
-.badge.avancé {
+
+.badge.avancé,
+.badge.advanced  {
   background-color: #C65B5B;
   color: white;
 }
 
-.badge.intermédiaire {
+.badge.intermédiaire,
+.badge.intermediate {
   background-color: #E8D469;
   color: #4A4A00;
 }
 
-.badge.débutant {
+.badge.débutant ,
+.badge.beginner {
+
   background-color: #8AA73D;
   color: white;
 }
 
+.badge.senior,
 .badge.senior {
   background-color: #5B8AC6;
   color: white;
 }
 
+.badge.expert,
 .badge.expert {
   background-color: #8B5BC6;
   color: white;
 }
+
+
+
+
 
 /* ----------------------------- */
 /*            ACTIONS            */
@@ -228,6 +261,7 @@ tbody tr:last-child {
 /* Contenu modal */
 .modal-content {
   padding: 30px;
+  margin-right: 20px;
 }
 
 /* Sections */
@@ -392,3 +426,174 @@ tbody tr:last-child {
 }
 
 
+/* ===================== INDICATEUR DE TRADUCTION ===================== */
+.translation-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.3s ease;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideIn {
+  from { 
+    transform: translateX(100%); 
+    opacity: 0;
+  }
+  to { 
+    transform: translateX(0); 
+    opacity: 1;
+  }
+}
+
+/* ===================== AMÉLIORATIONS TABLEAU ===================== */
+
+/* Amélioration du tableau pour les textes traduits */
+.table tbody td {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table tbody td:hover {
+  overflow: visible;
+  white-space: normal;
+  position: relative;
+  z-index: 10;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Animation lors du chargement des données */
+.table tbody tr {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===================== MODAL RESPONSIVE ===================== */
+
+.modal-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Style pour les listes dans la modal */
+.section ul {
+  list-style-position: inside;
+  padding-left: 0;
+}
+
+.section ul li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  animation: fadeIn 0.2s ease;
+}
+
+.section ul li:last-child {
+  border-bottom: none;
+}
+
+/* ===================== BADGES TRADUITS ===================== */
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+
+
+.badge-type {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-type.interne,
+.badge-type.internal {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge-type.externe,
+.badge-type.external {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.badge-type.non-defini {
+  background: #f5f5f5;
+  color: #757575;
+}
+
+/* ===================== ÉTAT DE CHARGEMENT ===================== */
+
+.table.loading {
+  opacity: 0.6;
+  pointer-events: none;
+  position: relative;
+}
+
+.table.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ===================== RESPONSIVE ===================== */
+
+@media (max-width: 768px) {
+  .translation-indicator {
+    top: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .spinner {
+    width: 12px;
+    height: 12px;
+  }
+}

@@ -1,109 +1,406 @@
+
+
 import { db } from "../db.js";
 import { Router } from 'express';
-import ExcelJS from "exceljs";
+import ExcelJS from 'exceljs';
+import fetch from 'node-fetch';
 
+const translations = {
+  fr: {
+    intitule: 'Intitulé',
+    axe: 'Axe',
+    axe_code: 'Axe Code',
+    population: 'Population',
+    niveau: 'Niveau',
+    prerequis: 'Prérequis',
+    formateur: 'Formateur',
+    interne_externe: 'Interne / Externe',
+    parcours: 'Parcours',
+    duree: 'Durée',
+    etat: 'État',
+    prestataire: 'Prestataire',
+    objectifs: 'Objectifs',
+    competences: 'Compétences',
+  },
+  en: {
+    intitule: 'Title',
+    axe: 'Area',
+    axe_code: 'Area Code',
+    population: 'Population',
+    niveau: 'Level',
+    prerequis: 'Prerequisites',
+    formateur: 'Trainer',
+    interne_externe: 'Internal / External',
+    parcours: 'Path',
+    duree: 'Duration',
+    etat: 'Status',
+    prestataire: 'Provider',
+    objectifs: 'Objectives',
+    competences: 'Skills',
+  }
+};
+
+// ✅ VERSION OPTIMISÉE - LOGS MINIMAUX
 export const downloadExcel = async (req, res) => {
   try {
+    const lang = req.query.lang || 'fr';
+    
+    console.log(`📥 Génération Excel [${lang}] - Début`);
+
+    // Augmenter le timeout de la requête
+    req.setTimeout(300000); // 5 minutes
+    res.setTimeout(300000);
+
+    // Récupérer les formations
     const [formations] = await db.query(`
       SELECT f.*, CONCAT(u.prenom, ' ', u.nom) AS formateur
       FROM formation f
       LEFT JOIN users u ON f.id_formateur = u.id_user
     `);
 
-    const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet("Formations");
+    console.log(`   ${formations.length} formations chargées`);
 
-    sheet.columns = [
-      { header: 'Intitulé', key: 'intitule', width: 25 },
-      { header: 'Axe', key: 'axe', width: 15 },
-      { header: 'Axe Code', key: 'axe_code', width: 12 },
-      { header: 'Population', key: 'population', width: 15 },
-      { header: 'Niveau', key: 'niveau', width: 12 },
-      { header: 'Prérequis', key: 'prerequis', width: 25 },
-      { header: 'Formateur', key: 'formateur', width: 20 },
-      { header: 'Interne / Externe', key: 'interne_externe', width: 15 },
-      { header: 'Parcours', key: 'parcours', width: 15 },
-      { header: 'Durée', key: 'duree', width: 10 },
-      { header: 'État', key: 'etat', width: 12 },
-      { header: 'Prestataire', key: 'prestataire', width: 20 },
-      { header: 'Objectifs', key: 'objectifs', width: 50 },
-      { header: 'Compétences', key: 'competences', width: 50 },
-    ];
+    // Si français, générer directement
+    if (lang !== 'en') {
+      console.log(`   Génération directe (pas de traduction)`);
+      return await generateExcelFile(formations, lang, res, false);
+    }
 
-    // Style pour l'en-tête
-    sheet.getRow(1).eachCell((cell) => {
-      cell.font = { bold: true };
-      cell.alignment = { vertical: 'middle', horizontal: 'center' };
-    });
+    console.log(`   Démarrage traduction EN...`);
 
-    // Colonnes qui nécessitent un retour à la ligne automatique
-    const wrapTextColumns = ['intitule', 'prerequis', 'objectifs', 'competences', 'prestataire'];
+    // ✅ OPTIMISATION: Collecter et traduire en une seule passe
+    const textsToTranslate = [];
+    const textMapping = [];
 
-    for (const f of formations) {
+    for (let i = 0; i < formations.length; i++) {
+      const f = formations[i];
+      
+      // Initialiser les arrays
+      formations[i].objectifsArray = [];
+      formations[i].competencesArray = [];
+      formations[i].objectifsTranslated = [];
+      formations[i].competencesTranslated = [];
+      
+      // Collecter les champs simples
+      if (f.intitule?.trim()) {
+        textsToTranslate.push(f.intitule);
+        textMapping.push({ formationIndex: i, field: 'intitule' });
+      }
+      
+      if (f.population?.trim()) {
+        textsToTranslate.push(f.population);
+        textMapping.push({ formationIndex: i, field: 'population' });
+      }
+      
+      if (f.prerequis?.trim()) {
+        textsToTranslate.push(f.prerequis);
+        textMapping.push({ formationIndex: i, field: 'prerequis' });
+      }
+      
+      if (f.prestataire?.trim()) {
+        textsToTranslate.push(f.prestataire);
+        textMapping.push({ formationIndex: i, field: 'prestataire' });
+      }
+
+      // Objectifs
       const [objectifRows] = await db.query(`
         SELECT o.libelle
         FROM formation_objectif fo
         JOIN objectif o ON fo.id_objectif = o.id_objectif
         WHERE fo.id_formation = ?
       `, [f.id_formation]);
-      const objectifs = objectifRows.map(o => o.libelle).join('\n');
+      
+      formations[i].objectifsArray = objectifRows.map(o => o.libelle);
+      objectifRows.forEach((obj, idx) => {
+        if (obj.libelle?.trim()) {
+          textsToTranslate.push(obj.libelle);
+          textMapping.push({ formationIndex: i, field: 'objectifs', index: idx });
+        }
+      });
 
+      // Compétences
       const [competenceRows] = await db.query(`
         SELECT c.libelle
         FROM formation_competence fc
         JOIN competence c ON fc.id_competence = c.id_competence
         WHERE fc.id_formation = ?
       `, [f.id_formation]);
-      const competences = competenceRows.map(c => c.libelle).join('\n');
-
-      const row = sheet.addRow({
-        intitule: f.intitule,
-        axe: f.axe,
-        axe_code: f.axe_code || '',
-        population: f.population,
-        niveau: f.niveau,
-        prerequis: f.prerequis,
-        formateur: f.formateur,
-        interne_externe: f.interne_externe,
-        parcours: f.parcours,
-        duree: f.duree,
-        etat: f.statut || f.etat || '',
-        prestataire: f.prestataire || '',
-        objectifs,
-        competences
-      });
-
-      // Appliquer le style pour chaque cellule
-      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-        const key = sheet.getColumn(colNumber).key;
-
-        if (wrapTextColumns.includes(key)) {
-          // Colonnes longues : retour à la ligne, alignement en haut et à gauche
-          cell.alignment = { wrapText: true, vertical: 'top', horizontal: 'left' };
-        } else {
-          // Autres colonnes : centré
-          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      
+      formations[i].competencesArray = competenceRows.map(c => c.libelle);
+      competenceRows.forEach((comp, idx) => {
+        if (comp.libelle?.trim()) {
+          textsToTranslate.push(comp.libelle);
+          textMapping.push({ formationIndex: i, field: 'competences', index: idx });
         }
       });
     }
 
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    );
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=formations.xlsx"
-    );
+    console.log(`   📦 ${textsToTranslate.length} textes à traduire`);
 
-    await workbook.xlsx.write(res);
-    res.end();
+    if (textsToTranslate.length === 0) {
+      console.log(`   ⚠️  Aucun texte, génération sans traduction`);
+      return await generateExcelFile(formations, lang, res, false);
+    }
+
+    // ✅ Traduire via Flask avec timeout
+    console.log(`   🌐 Appel API Flask...`);
+    const translatedTexts = await translateBatchViaFlask(textsToTranslate, 'en');
+    
+    if (!translatedTexts || translatedTexts.length === 0) {
+      console.error(`   ❌ Échec traduction, génération sans traduction`);
+      return await generateExcelFile(formations, lang, res, false);
+    }
+
+    if (translatedTexts.length !== textsToTranslate.length) {
+      console.error(`   ❌ Incohérence: ${textsToTranslate.length} envoyés, ${translatedTexts.length} reçus`);
+      return await generateExcelFile(formations, lang, res, false);
+    }
+
+    console.log(`   ✅ Traductions reçues`);
+
+    // ✅ Appliquer les traductions
+    for (let i = 0; i < translatedTexts.length; i++) {
+      const translated = translatedTexts[i];
+      const mapping = textMapping[i];
+      const formation = formations[mapping.formationIndex];
+
+      if (mapping.field === 'objectifs') {
+        if (!Array.isArray(formation.objectifsTranslated)) {
+          formation.objectifsTranslated = [];
+        }
+        formation.objectifsTranslated[mapping.index] = translated;
+      } 
+      else if (mapping.field === 'competences') {
+        if (!Array.isArray(formation.competencesTranslated)) {
+          formation.competencesTranslated = [];
+        }
+        formation.competencesTranslated[mapping.index] = translated;
+      } 
+      else {
+        formation[`${mapping.field}Translated`] = translated;
+      }
+    }
+
+    console.log(`   🔨 Traductions appliquées`);
+
+    // Générer l'Excel AVEC traductions
+    await generateExcelFile(formations, lang, res, true);
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erreur génération Excel" });
+    console.error('❌ ERREUR:', err.message);
+    
+    // Vérifier si les headers ont déjà été envoyés
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        message: "Erreur génération Excel", 
+        error: err.message 
+      });
+    }
   }
 };
+
+// ✅ VERSION OPTIMISÉE - LOGS MINIMAUX
+async function generateExcelFile(formations, lang, res, isTranslated) {
+  console.log(`📄 Génération fichier Excel (${lang}, translated: ${isTranslated})`);
+
+  const workbook = new ExcelJS.Workbook();
+  const t = translations[lang];
+  
+  const sheetName = lang === 'en' ? 'Trainings' : 'Formations';
+  const sheet = workbook.addWorksheet(sheetName);
+
+  sheet.columns = [
+    { header: t.intitule, key: 'intitule', width: 30 },
+    { header: t.axe, key: 'axe', width: 15 },
+    { header: t.axe_code, key: 'axe_code', width: 12 },
+    { header: t.population, key: 'population', width: 25 },
+    { header: t.niveau, key: 'niveau', width: 12 },
+    { header: t.prerequis, key: 'prerequis', width: 40 },
+    { header: t.formateur, key: 'formateur', width: 20 },
+    { header: t.interne_externe, key: 'interne_externe', width: 18 },
+    { header: t.parcours, key: 'parcours', width: 15 },
+    { header: t.duree, key: 'duree', width: 12 },
+    { header: t.etat, key: 'etat', width: 12 },
+    { header: t.prestataire, key: 'prestataire', width: 35 },
+    { header: t.objectifs, key: 'objectifs', width: 50 },
+    { header: t.competences, key: 'competences', width: 50 },
+  ];
+
+  // Style header
+  sheet.getRow(1).eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4472C4' }
+    };
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    cell.border = {
+      top: { style: 'thin' },
+      left: { style: 'thin' },
+      bottom: { style: 'thin' },
+      right: { style: 'thin' }
+    };
+  });
+
+  const wrapTextColumns = ['intitule', 'prerequis', 'objectifs', 'competences', 'prestataire'];
+
+  // ✅ Ajouter les lignes
+  for (const f of formations) {
+    let intitule, population, prerequis, prestataire, objectifs, competences;
+
+    if (isTranslated) {
+      intitule = f.intituleTranslated || f.intitule || '';
+      population = f.populationTranslated || f.population || '';
+      prerequis = f.prerequisTranslated || f.prerequis || '';
+      prestataire = f.prestataireTranslated || f.prestataire || '';
+      
+      objectifs = (f.objectifsTranslated?.length > 0)
+        ? f.objectifsTranslated.filter(o => o).join('\n')
+        : ((f.objectifsArray || []).filter(o => o).join('\n'));
+      
+      competences = (f.competencesTranslated?.length > 0)
+        ? f.competencesTranslated.filter(c => c).join('\n')
+        : ((f.competencesArray || []).filter(c => c).join('\n'));
+    } else {
+      intitule = f.intitule || '';
+      population = f.population || '';
+      prerequis = f.prerequis || '';
+      prestataire = f.prestataire || '';
+      objectifs = (f.objectifsArray || []).filter(o => o).join('\n');
+      competences = (f.competencesArray || []).filter(c => c).join('\n');
+    }
+
+    const niveau = lang === 'en' ? translateFixedValue(f.niveau) : (f.niveau || '');
+    const interneExterne = lang === 'en' ? translateFixedValue(f.interne_externe) : (f.interne_externe || '');
+    const etat = lang === 'en' ? translateFixedValue(f.statut || f.etat || '') : (f.statut || f.etat || '');
+
+    const row = sheet.addRow({
+      intitule,
+      axe: f.axe || '',
+      axe_code: f.axe_code || '',
+      population,
+      niveau,
+      prerequis,
+      formateur: f.formateur || '',
+      interne_externe: interneExterne,
+      parcours: f.parcours || '',
+      duree: f.duree || '',
+      etat,
+      prestataire,
+      objectifs,
+      competences
+    });
+
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      const key = sheet.getColumn(colNumber).key;
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+      if (wrapTextColumns.includes(key)) {
+        cell.alignment = { wrapText: true, vertical: 'top', horizontal: 'left' };
+      } else {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      }
+    });
+  }
+
+  console.log(`   ✅ ${formations.length} lignes ajoutées`);
+
+  const filename = lang === 'en' ? 'trainings.xlsx' : 'formations.xlsx';
+
+  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+
+  await workbook.xlsx.write(res);
+  res.end();
+
+  console.log(`✅ Fichier "${filename}" envoyé\n`);
+}
+
+function translateFixedValue(value) {
+  if (!value) return '';
+  const fixedTranslations = {
+    'débutant': 'Beginner',
+    'intermédiaire': 'Intermediate',
+    'avancé': 'Advanced',
+    'senior': 'Senior',
+    'expert': 'Expert',
+    'interne': 'Internal',
+    'externe': 'External',
+    'en_attente': 'Pending',
+    'validee': 'Validated',
+    'refusee': 'Rejected'
+  };
+  return fixedTranslations[value.toLowerCase()] || value;
+}
+
+// ✅ FONCTION OPTIMISÉE AVEC TIMEOUT
+async function translateBatchViaFlask(texts, targetLang) {
+  try {
+    console.log(`   📡 Appel Flask (${texts.length} textes)...`);
+    
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+
+    const response = await fetch('http://localhost:5001/translate-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        texts: texts,
+        source: 'fr',
+        target: targetLang
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`   ❌ Erreur HTTP ${response.status}: ${errorText}`);
+      return texts; // Fallback
+    }
+
+    const data = await response.json();
+    console.log(`   ✅ ${data.translations?.length || 0} traductions reçues`);
+    
+    return data.translations || texts;
+    
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      console.error(`   ❌ Timeout de traduction (>2min)`);
+    } else {
+      console.error(`   ❌ Erreur Flask: ${error.message}`);
+    }
+    return texts; // Fallback: retourner originaux
+  }
+}
+
+// ✅ Aussi mettre à jour la fonction translateBatch (pour downloadExcelTranslated)
+async function translateBatch(texts, targetLang) {
+  try {
+    // 🔥 CHANGEMENT CRITIQUE: Port 5001
+    const response = await fetch('http://localhost:5001/translate-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        texts: texts,
+        source: 'fr',
+        target: targetLang
+      })
+    });
+
+    const data = await response.json();
+    return data.translations || texts;
+  } catch (error) {
+    console.error('❌ Erreur traduction batch:', error);
+    return texts; // Fallback: retourner les textes originaux
+  }
+}
 
 export const getFormationById = async (req, res) => {
   try {
@@ -166,6 +463,8 @@ export const getFormations = async (req, res) => {
         CONCAT(u.prenom, ' ', u.nom) AS formateur
       FROM formation f
       LEFT JOIN users u ON f.id_formateur = u.id_user
+      WHERE f.etat = 'validee'  /* ✅ AJOUT: Filtrer uniquement les formations validées */
+      ORDER BY f.id_formation DESC
     `);
 
     const formations = await Promise.all(rows.map(async (f) => {

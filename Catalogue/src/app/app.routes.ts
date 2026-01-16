@@ -8,6 +8,7 @@ import { AdminGuard } from './admin.guard';
 import { LayoutComponent } from './layout/layout';
 import { FormateurComponent } from './formateur-component/formateur-component';
 import { FormationHistorique } from './formation-historique/formation-historique';
+import { OnboardingManagement } from './onboarding-management/onboarding-management';
 
 export const routes: Routes = [
 
@@ -35,7 +36,8 @@ export const routes: Routes = [
         runGuardsAndResolvers: 'always' // ✅ Force le rechargement
       },
           { path: 'formateur', component: FormateurComponent },
-    { path: 'historique', component: FormationHistorique }
+    { path: 'historique', component: FormationHistorique },
+   { path: 'Onboarding', component: OnboardingManagement }
       
     ],
     runGuardsAndResolvers: 'always' // ✅ Force aussi au niveau du layout

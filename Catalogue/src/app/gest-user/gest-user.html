@@ -1,21 +1,22 @@
 <div class="container">
 
+  <!-- ================= HEADER ================= -->
   <div class="header">
-    <h2>Gestion des Utilisateurs</h2>
+    <h2>{{ ui.title }}</h2>
     <button class="btn-add" (click)="openModal()">
-      <span>+</span> Ajouter un utilisateur
+      <span>+</span> {{ ui.addUser }}
     </button>
   </div>
 
- 
+  <!-- ================= TABLE ================= -->
   <table class="table">
     <thead>
       <tr>
-        <th>Nom</th>
-        <th>Prénom</th>
-        <th>Email</th>
-        <th>Rôle</th>
-        <th>Actions</th>
+        <th>{{ ui.thNom }}</th>
+        <th>{{ ui.thPrenom }}</th>
+        <th>{{ ui.thEmail }}</th>
+        <th>{{ ui.thRole }}</th>
+        <th>{{ ui.thActions }}</th>
       </tr>
     </thead>
 
@@ -38,34 +39,48 @@
 <!-- ================= MODAL EDIT ================= -->
 <div class="modal-backdrop" *ngIf="editModalOpen && editUser">
   <div class="modal">
-    <h2>Modifier un utilisateur</h2>
+    <h2>{{ ui.editTitle }}</h2>
 
     <form (ngSubmit)="updateUser()" #editForm="ngForm" class="form-grid">
 
       <div class="col">
 
-        <label>Nom :</label>
-        <input type="text" [(ngModel)]="editUser.nom" name="edit_nom" required>
+        <label>{{ ui.labelNom }} :</label>
+        <input
+          type="text"
+          [(ngModel)]="editUser.nom"
+          name="edit_nom"
+          required
+        >
 
-        <label>Prénom :</label>
-        <input type="text" [(ngModel)]="editUser.prenom" name="edit_prenom" required>
+        <label>{{ ui.labelPrenom }} :</label>
+        <input
+          type="text"
+          [(ngModel)]="editUser.prenom"
+          name="edit_prenom"
+          required
+        >
 
-        <label>Email :</label>
-         <input
-  type="email"
-  [(ngModel)]="newUser.email"
-  name="email"
-  #email="ngModel"
-  required
-  pattern="^[a-zA-Z0-9._%+-]+@teamwillgroup\.com$"
-/>
+        <label>{{ ui.labelEmail }} :</label>
+        <input
+          type="email"
+          [(ngModel)]="editUser.email"
+          name="edit_email"
+          #editEmail="ngModel"
+          required
+          pattern="^[a-zA-Z0-9._%+-]+@teamwillgroup\.com$"
+        >
 
-<div *ngIf="email.invalid && email.touched">
-  Only @teamwillgroup.com emails are allowed
-</div>
+        <div *ngIf="editEmail.invalid && editEmail.touched">
+          {{ ui.emailError }}
+        </div>
 
-        <label>Rôle :</label>
-        <select [(ngModel)]="editUser.id_role" name="edit_role" required>
+        <label>{{ ui.labelRole }} :</label>
+        <select
+          [(ngModel)]="editUser.id_role"
+          name="edit_role"
+          required
+        >
           <option *ngFor="let r of roles" [value]="r.id_role">
             {{ r.libelle }}
           </option>
@@ -74,12 +89,24 @@
 
       <div class="col">
 
-        <label>Mot de passe (optionnel) :</label>
-        <input type="password" [(ngModel)]="editUser.password" name="edit_password">
+        <label>{{ ui.labelPasswordOpt }} :</label>
+        <input
+          type="password"
+          [(ngModel)]="editUser.password"
+          name="edit_password"
+        >
 
         <div class="modal-actions full-width">
-          <button type="submit" class="btn-save">Mettre à jour</button>
-          <button type="button" class="btn-cancel" (click)="closeEditModal()">Annuler</button>
+          <button type="submit" class="btn-save">
+            {{ ui.update }}
+          </button>
+          <button
+            type="button"
+            class="btn-cancel"
+            (click)="closeEditModal()"
+          >
+            {{ ui.cancel }}
+          </button>
         </div>
       </div>
 
@@ -90,34 +117,48 @@
 <!-- ================= MODAL ADD ================= -->
 <div class="modal-backdrop" *ngIf="modalOpen">
   <div class="modal">
-    <h2>Ajouter un utilisateur</h2>
+    <h2>{{ ui.addTitle }}</h2>
 
     <form (ngSubmit)="saveUser()" #form="ngForm" class="form-grid">
 
       <div class="col">
 
-        <label>Nom :</label>
-        <input type="text" [(ngModel)]="newUser.nom" name="nom" required>
+        <label>{{ ui.labelNom }} :</label>
+        <input
+          type="text"
+          [(ngModel)]="newUser.nom"
+          name="nom"
+          required
+        >
 
-        <label>Prénom :</label>
-        <input type="text" [(ngModel)]="newUser.prenom" name="prenom" required>
+        <label>{{ ui.labelPrenom }} :</label>
+        <input
+          type="text"
+          [(ngModel)]="newUser.prenom"
+          name="prenom"
+          required
+        >
 
-        <label>Email :</label>
-          <input
-  type="email"
-  [(ngModel)]="newUser.email"
-  name="email"
-  #email="ngModel"
-  required
-  pattern="^[a-zA-Z0-9._%+-]+@teamwillgroup\.com$"
-/>
+        <label>{{ ui.labelEmail }} :</label>
+        <input
+          type="email"
+          [(ngModel)]="newUser.email"
+          name="email"
+          #email="ngModel"
+          required
+          pattern="^[a-zA-Z0-9._%+-]+@teamwillgroup\.com$"
+        >
 
-<div *ngIf="email.invalid && email.touched">
-  Only @teamwillgroup.com emails are allowed
-</div>
+        <div *ngIf="email.invalid && email.touched">
+          {{ ui.emailError }}
+        </div>
 
-        <label>Rôle :</label>
-        <select [(ngModel)]="newUser.id_role" name="role" required>
+        <label>{{ ui.labelRole }} :</label>
+        <select
+          [(ngModel)]="newUser.id_role"
+          name="role"
+          required
+        >
           <option *ngFor="let r of roles" [value]="r.id_role">
             {{ r.libelle }}
           </option>
@@ -126,12 +167,25 @@
 
       <div class="col">
 
-        <label>Mot de passe :</label>
-        <input type="password" [(ngModel)]="newUser.password" name="password" required>
+        <label>{{ ui.labelPassword }} :</label>
+        <input
+          type="password"
+          [(ngModel)]="newUser.password"
+          name="password"
+          required
+        >
 
         <div class="modal-actions full-width">
-          <button type="submit" class="btn-save">Enregistrer</button>
-          <button type="button" class="btn-cancel" (click)="closeModal()">Annuler</button>
+          <button type="submit" class="btn-save">
+            {{ ui.save }}
+          </button>
+          <button
+            type="button"
+            class="btn-cancel"
+            (click)="closeModal()"
+          >
+            {{ ui.cancel }}
+          </button>
         </div>
       </div>
 

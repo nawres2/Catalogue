@@ -143,10 +143,12 @@
       </div>
 
       <!-- VIEW BY PARCOURS -->
+<!-- VIEW BY PARCOURS - SECTION ONBOARDING avec pays corrigés -->
+<!-- VIEW BY PARCOURS - SECTION ONBOARDING avec pays corrigés -->
 <div *ngIf="currentView === 'parcours'" class="view-content">
   <div *ngFor="let parcours of groupedParcours; let parcoursIndex = index" class="parcours-section">
     
-    <!-- Parcours Header - Now Clickable -->
+    <!-- Parcours Header -->
     <div class="parcours-header" 
          [class.collapsed]="collapsedParcours[parcoursIndex]"
          (click)="toggleParcours(parcoursIndex)">
@@ -154,26 +156,65 @@
         <svg class="parcours-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
         </svg>
-<div class="parcours-name">{{ translateParcours(parcours.name) }}</div>      </div>
+        <div class="parcours-name">{{ translateParcours(parcours.name) }}</div>
+      </div>
       <span class="parcours-count">{{ parcours.count }} {{ translations.formations }}</span>
     </div>
 
-    <!-- Parcours Content - Collapsible -->
+    <!-- Parcours Content -->
     <div class="parcours-content" [class.hidden]="collapsedParcours[parcoursIndex]">
       
-      <!-- Other Parcours: Group by Axes -->
-      <ng-container *ngIf="parcours.axes">
-        <ng-container *ngFor="let axeGroup of parcours.axes; let a = index">
-          <div class="axe-section" [class.collapsed]="collapsedParcoursAxes[parcours.name]?.[a]">
-            <div class="axe-header" (click)="toggleParcoursAxe(parcours.name, a)">
+      <!-- OnBoarding: Group by Pays -->
+      <ng-container *ngIf="parcours.pays && parcours.pays.length > 0">
+        <ng-container *ngFor="let paysGroup of parcours.pays; let p = index">
+          <div class="axe-section" [class.collapsed]="collapsedParcoursAxes[parcours.name]?.[p]">
+            
+            <!-- 🔥 Header avec traduction du pays -->
+            <div class="axe-header" (click)="toggleParcoursAxe(parcours.name, p)">
               <div class="axe-header-content">
-<div class="axe-name">{{ translateAxe(axeGroup.axe) }}</div>          </div>
+                <div class="axe-name">
+                   {{ translatePaysName(paysGroup.paysName) }}
+                </div>
+              </div>
               <svg class="axe-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </div>
 
-            <div class="axe-content">
+            <!-- 🔥 Contenu SANS section "Interne/Externe" pour OnBoarding -->
+            <div class="axe-content" [class.hidden]="collapsedParcoursAxes[parcours.name]?.[p]">
+              <ng-container *ngFor="let statusGroup of paysGroup.interneExterne">
+                <!-- ⚠️ NE PAS afficher le header "Interne/Externe" pour OnBoarding -->
+                <div class="formation-list" style="padding-left: 0;">
+                  <button 
+                    *ngFor="let formation of statusGroup.formations"
+                    class="formation-item"
+                    [class.active]="isCurrentPageFormation(formation)"
+                    (click)="goToPage(getVisibleFormations().indexOf(formation))">
+                    <span class="formation-title">{{ formation.intitule }}</span>
+                    <div *ngIf="isCurrentPageFormation(formation)" class="active-indicator"></div>
+                  </button>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <!-- Other Parcours: Group by Axes -->
+      <ng-container *ngIf="parcours.axes && parcours.axes.length > 0">
+        <ng-container *ngFor="let axeGroup of parcours.axes; let a = index">
+          <div class="axe-section" [class.collapsed]="collapsedParcoursAxes[parcours.name]?.[a]">
+            <div class="axe-header" (click)="toggleParcoursAxe(parcours.name, a)">
+              <div class="axe-header-content">
+                <div class="axe-name">{{ translateAxe(axeGroup.axe) }}</div>
+              </div>
+              <svg class="axe-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+
+            <div class="axe-content" [class.hidden]="collapsedParcoursAxes[parcours.name]?.[a]">
               <ng-container *ngFor="let typeGroup of axeGroup.types">
                 <div class="type-section">
                   <ng-container *ngFor="let statusGroup of typeGroup.interneExterne">
@@ -200,42 +241,6 @@
         </ng-container>
       </ng-container>
 
-      <!-- OnBoarding: Group by Pays -->
-      <ng-container *ngIf="parcours.pays">
-        <ng-container *ngFor="let paysGroup of parcours.pays; let p = index">
-          <div class="axe-section" [class.collapsed]="collapsedParcoursAxes[parcours.name]?.[p]">
-            <div class="axe-header" (click)="toggleParcoursAxe(parcours.name, p)">
-              <div class="axe-header-content">
-                <div class="axe-name"> {{ paysGroup.paysName }}</div>
-              </div>
-              <svg class="axe-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-            </div>
-
-            <div class="axe-content">
-              <ng-container *ngFor="let statusGroup of paysGroup.interneExterne">
-                <div class="status-section">
-                  <div class="status-header">
-                    <div class="type-name">{{ statusGroup.status | titlecase }}</div>
-                  </div>
-                  <div class="formation-list">
-                    <button 
-                      *ngFor="let formation of statusGroup.formations"
-                      class="formation-item"
-                      [class.active]="isCurrentPageFormation(formation)"
-                      (click)="goToPage(getVisibleFormations().indexOf(formation))">
-                      <span class="formation-title">{{ formation.intitule }}</span>
-                      <div *ngIf="isCurrentPageFormation(formation)" class="active-indicator"></div>
-                    </button>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-        </ng-container>
-      </ng-container>
-
     </div>
   </div>
 </div>
@@ -245,111 +250,220 @@
   <!-- Main Content --> 
   <div class="main-content">
     <div class="book-container">
-      <div 
-        class="book-page" 
+      <div
+        class="book-page"
         *ngIf="currentFormation"
         [class.page-flip-out]="pageFlipDirection === 'forward'"
         [class.page-flip-back-out]="pageFlipDirection === 'backward'">
-      
+     
         <div class="page-content">
-          <img 
+          <img
             src="https://universitesesame.com/wp-content/uploads/2022/09/logo-teamwill.png"
             alt="TeamWill Logo"
             style="width:170px; height:auto; float:right; margin:5px;">
-          
-          <!-- Page Header -->
-          <div class="page-header">
-            <span class="category-badge">{{ currentFormation.axe_code }}</span>
-            <h2 class="formation-main-title">{{ currentFormation.intitule }}</h2>
-            <p class="formation-description">{{ currentFormation.duree }}</p>
-          </div>
-
-          <!-- Information Grid -->
-          <div class="info-grid">
-            <div class="info-card">
-              <div class="info-card-header">
-                <span class="info-label">
-                  {{ currentFormation.interne_externe === 'externe' ? translations.provider : translations.trainer }}
+         
+          <!-- ✅ DISPLAY FOR FORMATIONS FROM formation TABLE -->
+          <ng-container *ngIf="!currentFormation.source || currentFormation.source === 'formation'">
+            <!-- Page Header -->
+            <div class="page-header">
+              <span class="category-badge">{{ currentFormation.axe_code }}</span>
+              <h2 class="formation-main-title">{{ currentFormation.intitule }}</h2>
+              <p class="formation-description">{{ currentFormation.duree }}</p>
+            </div>
+ 
+            <!-- Information Grid -->
+            <div class="info-grid">
+              <div class="info-card">
+                <div class="info-card-header">
+                  <span class="info-label">
+                    {{ currentFormation.interne_externe === 'externe' ? translations.provider : translations.trainer }}
+                  </span>
+                </div>
+                <p class="info-value">
+                  {{ currentFormation.interne_externe === 'externe'
+                     ? (currentFormation.prestataire || 'N/A')
+                     : (currentFormation.formateur || 'N/A') }}
+                </p>
+              </div>
+ 
+              <div class="info-card">
+                <div class="info-card-header">
+                  <span class="info-label">{{ translations.level }}</span>
+                </div>
+                <span [class]="'niveau-badge ' + getNiveauColor(currentFormation.niveau || '')">
+                  {{ currentFormation.niveau || 'N/A' }}
                 </span>
               </div>
-              <p class="info-value">
-                {{ currentFormation.interne_externe === 'externe' 
-                   ? (currentFormation.prestataire || 'N/A') 
-                   : (currentFormation.formateur || 'N/A') }}
+ 
+              <div class="info-card">
+                <div class="info-card-header">
+                  <span class="info-label">{{ translations.population }}</span>
+                </div>
+                <p class="info-value">{{ currentFormation.population || 'N/A' }}</p>
+              </div>
+            </div>
+ 
+            <!-- Objectifs -->
+            <div class="section">
+              <h3 class="section-title">
+                <div class="title-bar"></div> {{ translations.objectives }}
+              </h3>
+              <ul class="objectifs-list">
+                <li *ngFor="let objectif of currentFormation.objectifs || []; let i = index" class="objectif-item">
+                  <div class="objectif-number">{{ i + 1 }}</div>
+                  <span class="objectif-text">{{ objectif }}</span>
+                </li>
+              </ul>
+            </div>
+ 
+            <!-- Compétences -->
+            <div class="section">
+              <h3 class="section-title">
+                <div class="title-bar competences-bar"></div> {{ translations.skills }}
+              </h3>
+              <ul class="competences-list">
+                <li *ngFor="let competence of currentFormation.competences || []" class="competence-item">
+                  {{ competence }}
+                </li>
+              </ul>
+            </div>
+ 
+            <!-- Prérequis -->
+            <div class="section">
+              <h3 class="section-title">
+                <div class="title-bar prerequis-bar"></div> {{ translations.prerequisites }}
+              </h3>
+              <div class="prerequis-box">
+                <p class="prerequis-text">{{ currentFormation.prerequis }}</p>
+              </div>
+            </div>
+          </ng-container>
+         
+          <!-- ✅ DISPLAY FOR ONBOARDING_SESSION DATA -->
+         
+<!-- ✅ SECTION ONBOARDING - AVEC TRADUCTIONS COMPLÈTES -->
+
+<!-- ✅ SECTION ONBOARDING - AVEC TRADUCTIONS COMPLÈTES -->
+<ng-container *ngIf="currentFormation.source === 'onboarding_session' && currentFormation.onboarding_data">
+  <div class="page-header session-header">
+    <span class="category-badge session-badge">{{ translations.onboardingSession }}</span>
+    <h2 class="formation-main-title">{{ currentFormation.intitule }}</h2>
+    <p class="formation-description">
+      {{ currentFormation.onboarding_data.date_debut | date:'dd/MM/yyyy' }} -
+      {{ currentFormation.onboarding_data.date_fin | date:'dd/MM/yyyy' }}
+    </p>
+  </div>
+           <div class="info-grid">
+              <div class="info-card session-card">
+                <div class="info-card-header">
+        <span class="info-label">{{ translations.planificateur }}</span>
+                </div>
+                <p class="info-value">{{ currentFormation.onboarding_data.planificateur  }}</p>
+              </div>
+              
+              <div class="info-card session-card">
+                <div class="info-card-header">
+                  <span class="info-label"> {{ translations.population }}</span>
+                </div>
+                <p class="info-value">{{ currentFormation.onboarding_data.population || 'N/A' }}</p>
+              </div>
+
+              <div class="info-card session-card">
+                <div class="info-card-header">
+          <span class="info-label">{{ translations.duree }}</span>
+                </div>
+                <p class="info-value">{{ currentFormation.onboarding_data.nombre_jours }} jours</p>
+              </div>
+            </div>
+
+
+
+
+
+  <!-- Objectifs -->
+  <div class="section" *ngIf="currentFormation.objectifs && currentFormation.objectifs.length > 0">
+    <h3 class="section-title">
+      <div class="title-bar session-bar"></div> {{ translations.objectives }}
+    </h3>
+    <ul class="objectifs-list">
+      <li *ngFor="let objectif of currentFormation.objectifs; let i = index" class="objectif-item">
+        <div class="objectif-number session-number">{{ i + 1 }}</div>
+        <span class="objectif-text">{{ objectif }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Jours et activités -->
+ <ng-container *ngIf="currentFormation.onboarding_data.jours as jours">
+  <div class="section" *ngIf="jours.length > 0">
+    <h3 class="section-title">
+      <div class="title-bar session-bar"></div> {{ translations.programmeDetaille }}
+    </h3>
+
+    <div class="session-days-list">
+      <div *ngFor="let jour of jours; trackBy: trackByJourId" class="session-day-item">
+        <div class="day-header">
+          <span class="day-number">
+            <!-- ✅ UTILISER LA CLÉ 'jour' POUR LE MOT "Jour" -->
+            {{ currentLanguage === 'fr' ? 'Jour' : 'Day' }} {{ jour.numero_jour }}: {{ jour.titre }}
+          </span>
+          <span class="day-duration">{{ jour.date_jour | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+        <div class="day-activities" *ngIf="jour.activites && jour.activites.length > 0">
+          <div *ngFor="let activite of jour.activites; trackBy: trackByActiviteId" class="activity-item">
+            <div class="activity-time-column">
+              {{ activite.heure_debut }} - {{ activite.heure_fin }}
+            </div>
+            <div class="activity-content-column">
+              <div class="activity-header">
+                <h4 class="activity-title">{{ activite.titre }}</h4>
+                <span class="activity-type" *ngIf="activite.type_activite">
+                  {{ activite.type_activite }}
+                </span>
+              </div>
+
+              <p class="activity-description" *ngIf="activite.description">
+                {{ activite.description }}
               </p>
-            </div>
 
-            <div class="info-card">
-              <div class="info-card-header">
-                <span class="info-label">{{ translations.level }}</span>
+              <div class="activity-details" *ngIf="activite.lieu || activite.animateur">
+                <span *ngIf="activite.lieu" class="activity-detail">📍 {{ activite.lieu }}</span>
+                <span *ngIf="activite.animateur" class="activity-detail">👤 {{ activite.animateur }}</span>
               </div>
-              <span [class]="'niveau-badge ' + getNiveauColor(currentFormation.niveau || '')">
-                {{ currentFormation.niveau || 'N/A' }}
-              </span>
-            </div>
-
-            <div class="info-card">
-              <div class="info-card-header">
-                <span class="info-label">{{ translations.population }}</span>
-              </div>
-              <p class="info-value">{{ currentFormation.population || 'N/A' }}</p>
-            </div>
-          </div>
-
-          <!-- Objectifs -->
-          <div class="section">
-            <h3 class="section-title">
-              <div class="title-bar"></div> {{ translations.objectives }}
-            </h3>
-            <ul class="objectifs-list">
-              <li *ngFor="let objectif of currentFormation.objectifs || []; let i = index" class="objectif-item">
-                <div class="objectif-number">{{ i + 1 }}</div>
-                <span class="objectif-text">{{ objectif }}</span>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Compétences -->
-          <div class="section">
-            <h3 class="section-title">
-              <div class="title-bar competences-bar"></div> {{ translations.skills }}
-            </h3>
-            <ul class="competences-list">
-              <li *ngFor="let competence of currentFormation.competences || []" class="competence-item">
-                {{ competence }}
-              </li>
-            </ul>
-          </div>
-
-          <!-- Prérequis -->
-          <div class="section">
-            <h3 class="section-title">
-              <div class="title-bar prerequis-bar"></div> {{ translations.prerequisites }}
-            </h3>
-            <div class="prerequis-box">
-              <p class="prerequis-text">{{ currentFormation.prerequis }}</p>
             </div>
           </div>
         </div>
 
+        <div *ngIf="!jour.activites || jour.activites.length === 0" class="no-activities">
+          {{ translations.noActivities }}
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+</ng-container>
+
+        </div>
+ 
         <!-- Page Footer -->
         <div class="page-footer">{{ translations.page }} {{ currentPage + 1 }} / {{ getVisibleFormations().length }}</div>
       </div>
-
+ 
       <!-- Navigation Buttons -->
-      <button 
-        (click)="prevPage()" 
-        [disabled]="!canGoPrevious()" 
-        class="nav-button nav-prev" 
+      <button
+        (click)="prevPage()"
+        [disabled]="!canGoPrevious()"
+        class="nav-button nav-prev"
         [class.disabled]="!canGoPrevious()">
         <svg class="icon-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
-      <button 
-        (click)="nextPage()" 
-        [disabled]="!canGoNext()" 
-        class="nav-button nav-next" 
+      <button
+        (click)="nextPage()"
+        [disabled]="!canGoNext()"
+        class="nav-button nav-next"
         [class.disabled]="!canGoNext()">
         <svg class="icon-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <polyline points="9 18 15 12 9 6"></polyline>
@@ -395,17 +509,17 @@
 
       <div class="features-grid">
         <div class="feature-card">
-          <span class="feature-icon"></span>
+          <span class="feature-icon">⚡</span>
           <h3 class="feature-title">{{ translations.popupFeature1Title }}</h3>
           <p class="feature-desc">{{ translations.popupFeature1Desc }}</p>
         </div>
         <div class="feature-card">
-          <span class="feature-icon"></span>
+          <span class="feature-icon">🎯</span>
           <h3 class="feature-title">{{ translations.popupFeature2Title }}</h3>
           <p class="feature-desc">{{ translations.popupFeature2Desc }}</p>
         </div>
         <div class="feature-card">
-          <span class="feature-icon"></span>
+          <span class="feature-icon">🌐</span>
           <h3 class="feature-title">{{ translations.popupFeature3Title }}</h3>
           <p class="feature-desc">{{ translations.popupFeature3Desc }}</p>
         </div>

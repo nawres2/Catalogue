@@ -1,44 +1,53 @@
 <div class="container">
+  <!-- INDICATEUR DE TRADUCTION -->
+  <div class="translation-indicator" *ngIf="isTranslating">
+    <span class="spinner"></span> {{ getLabel('Traduction en cours...') }}
+  </div>
 
   <div class="header">
-    <h2>Historique des formations</h2>
+    <h2>{{ getLabel('Historique des formations') }}</h2>
     <div class="filters">
       <button 
         [class.active]="selectedEtat === 'en_attente'" 
-        (click)="changeEtat('en_attente')">En attente</button>
+        (click)="changeEtat('en_attente')">
+        {{ getLabel('En attente') }}
+      </button>
       <button 
         [class.active]="selectedEtat === 'validee'" 
-        (click)="changeEtat('validee')">Validées</button>
+        (click)="changeEtat('validee')">
+        {{ getLabel('Validées') }}
+      </button>
       <button 
         [class.active]="selectedEtat === 'refusee'" 
-        (click)="changeEtat('refusee')">Refusées</button>
+        (click)="changeEtat('refusee')">
+        {{ getLabel('Refusées') }}
+      </button>
     </div>
   </div>
 
- 
   <div *ngIf="!loading && formations.length === 0" class="no-data">
-    Aucune formation trouvée
+    {{ getLabel('Aucune formation trouvée') }}
   </div>
 
   <div class="table-wrapper" *ngIf="!loading && formations.length > 0">
     <table class="table">
       <thead>
         <tr>
-          <th>Intitulé</th>
-          <th>Axe</th>
-          <th>Niveau</th>
-          <th>Population</th>
-          <th>Type</th>
-          <th>État</th>
+          <th>{{ getLabel('Intitulé') }}</th>
+          <th>{{ getLabel('Axe') }}</th>
+          <th>{{ getLabel('Niveau') }}</th>
+          <th>{{ getLabel('Population') }}</th>
+          <th>{{ getLabel('Type') }}</th>
+          <th>{{ getLabel('État') }}</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let f of formations; trackBy: trackFormation" (click)="openDetailModal(f)">
+        <tr *ngFor="let f of getDisplayedFormations(); trackBy: trackFormation" (click)="openDetailModal(f)">
           <td>{{ f.intitule }}</td>
           <td>{{ f.axe }}</td>
           <td><span class="badge">{{ f.niveau }}</span></td>
-          <td>{{ f.population || 'Non spécifié' }}</td>
-          <td>{{ f.interne_externe || 'Non défini' }}</td>
+          <td>{{ f.population || getLabel('Non spécifié') }}</td>
+          <td>{{ f.interne_externe || getLabel('Non défini') }}</td>
           <td>
             <span class="status-badge" [ngClass]="f.etat">{{ f.etat }}</span>
           </td>
@@ -49,79 +58,85 @@
 </div>
 
 <!-- Detail Modal -->
-<div *ngIf="detailModalOpen && selectedFormation" class="modal-backdrop" (click)="closeDetailModal()">
+<div *ngIf="detailModalOpen && getDisplayedSelectedFormation()" class="modal-backdrop" (click)="closeDetailModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div class="modal-header-content">
-        <h2>Détails de la formation</h2>
-        <span class="status-badge" [ngClass]="selectedFormation.etat">{{ selectedFormation.etat }}</span>
+        <h2>{{ getLabel('Détails de la formation') }}</h2>
+        <span class="status-badge" [ngClass]="getDisplayedSelectedFormation()?.etat">
+          {{ getDisplayedSelectedFormation()?.etat }}
+        </span>
       </div>
       <button (click)="closeDetailModal()">✕</button>
     </div>
 
     <div class="modal-content">
       <div class="info-section">
-        <h3> Informations générales</h3>
+        <h3>{{ getLabel('Informations générales') }}</h3>
         <div class="info-grid">
           <div class="info-item">
-            <strong>Intitulé</strong>
-            <span>{{ selectedFormation.intitule }}</span>
+            <strong>{{ getLabel('Intitulé') }}</strong>
+            <span>{{ getDisplayedSelectedFormation()?.intitule }}</span>
           </div>
           <div class="info-item">
-            <strong>Axe</strong>
-            <span>{{ selectedFormation.axe }}</span>
+            <strong>{{ getLabel('Axe') }}</strong>
+            <span>{{ getDisplayedSelectedFormation()?.axe }}</span>
           </div>
           <div class="info-item">
-            <strong>Niveau</strong>
-            <span class="badge">{{ selectedFormation.niveau }}</span>
+            <strong>{{ getLabel('Niveau') }}</strong>
+            <span class="badge">{{ getDisplayedSelectedFormation()?.niveau }}</span>
           </div>
           <div class="info-item">
-            <strong>Population</strong>
-            <span>{{ selectedFormation.population || 'Non spécifié' }}</span>
+            <strong>{{ getLabel('Population') }}</strong>
+            <span>{{ getDisplayedSelectedFormation()?.population || getLabel('Non spécifié') }}</span>
           </div>
-          <div class="info-item">
-            <strong>Type</strong>
-            <span>{{ selectedFormation.interne_externe || 'Non défini' }}</span>
-          </div>
-          <div class="info-item" *ngIf="selectedFormation.duree">
-            <strong>Durée</strong>
-            <span>{{ selectedFormation.duree }}</span>
+          
+          <div class="info-item" *ngIf="getDisplayedSelectedFormation()?.duree">
+            <strong>{{ getLabel('Durée') }}</strong>
+            <span>{{ getDisplayedSelectedFormation()?.duree }}</span>
           </div>
         </div>
       </div>
 
-      <div class="info-section" *ngIf="selectedFormation.description">
-        <h3> Description</h3>
-        <p>{{ selectedFormation.description }}</p>
+      <div class="info-section" *ngIf="getDisplayedSelectedFormation()?.description">
+        <h3>{{ getLabel('Description') }}</h3>
+        <p>{{ getDisplayedSelectedFormation()?.description }}</p>
       </div>
 
-      <div class="info-section" *ngIf="selectedFormation.objectifs?.length">
-        <h3> Objectifs pédagogiques</h3>
+      <div class="info-section" *ngIf="getDisplayedSelectedFormation()?.objectifs?.length">
+        <h3>{{ getLabel('Objectifs pédagogiques') }}</h3>
         <ul>
-          <li *ngFor="let o of selectedFormation.objectifs">{{ o }}</li>
+          <li *ngFor="let o of getDisplayedSelectedFormation()?.objectifs">{{ o }}</li>
         </ul>
       </div>
 
-      <div class="info-section" *ngIf="selectedFormation.competences?.length">
-        <h3> Compétences visées</h3>
+      <div class="info-section" *ngIf="getDisplayedSelectedFormation()?.competences?.length">
+        <h3>{{ getLabel('Compétences visées') }}</h3>
         <ul>
-          <li *ngFor="let c of selectedFormation.competences">{{ c }}</li>
+          <li *ngFor="let c of getDisplayedSelectedFormation()?.competences">{{ c }}</li>
         </ul>
       </div>
-        <div class="info-section" *ngIf="selectedFormation.prerequis">
-        <h3>prerequis</h3>
-         <p>{{ selectedFormation.prerequis }}</p>
+
+      <div class="info-section" *ngIf="getDisplayedSelectedFormation()?.prerequis">
+        <h3>{{ getLabel('prerequis') }}</h3>
+        <p>{{ getDisplayedSelectedFormation()?.prerequis }}</p>
       </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="modal-actions">
+    <div class="modal-actions" *ngIf="selectedFormation?.etat !== 'validee'">
       <button class="btn btn-update" (click)="openUpdateModal()">
-        ✏️ Modifier
+        {{ getLabel('✏️ Modifier') }}
       </button>
       <button class="btn btn-delete" (click)="openDeleteModal()">
-        🗑️ Supprimer
+        {{ getLabel('🗑️ Supprimer') }}
       </button>
+    </div>
+    
+    <!-- Message pour formation validée -->
+    <div class="modal-info-message" *ngIf="selectedFormation?.etat === 'validee'">
+      <span class="info-icon">ℹ️</span>
+      {{ getLabel('Cette formation est validée et ne peut plus être modifiée ou supprimée.') }}
     </div>
   </div>
 </div>
@@ -130,145 +145,162 @@
 <div *ngIf="updateModalOpen && selectedFormation" class="modal-backdrop" (click)="closeUpdateModal()">
   <div class="update-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Modifier la formation</h2>
+      <h2>{{ getLabel('Modifier la formation') }}</h2>
       <button (click)="closeUpdateModal()">✕</button>
     </div>
 
-   <div class="modal-content" *ngIf="selectedFormation">
+    <div class="modal-content" *ngIf="selectedFormation">
+      <form (ngSubmit)="confirmUpdate()">
+        <div class="row">
 
-  <form  (ngSubmit)="confirmUpdate()">
-    <div class="row">
+          <!-- COLONNE GAUCHE -->
+          <div class="col">
+            <!-- Niveau -->
+            <label>{{ getLabel('Niveau :') }}</label>
+            <select [(ngModel)]="selectedFormation!.niveau" name="niveau" required>
+              <option value="débutant">{{ getLabel('Débutant') }}</option>
+              <option value="intermédiaire">{{ getLabel('Intermédiaire') }}</option>
+              <option value="avancé">{{ getLabel('Avancé') }}</option>
+              <option value="senior">{{ getLabel('Senior') }}</option>
+              <option value="expert">{{ getLabel('Expert') }}</option>
+            </select>
 
-      <!-- COLONNE GAUCHE -->
-      <div class="col">
-        <!-- Niveau -->
-        <label>Niveau :</label>
-        <select [(ngModel)]="selectedFormation.niveau" name="niveau" required>
-          <option value="débutant">Débutant</option>
-          <option value="intermédiaire">Intermédiaire</option>
-          <option value="avancé">Avancé</option>
-          <option value="senior">Senior</option>
-          <option value="expert">Expert</option>
-        </select>
+           
+            <!-- Intitulé -->
+            <label>{{ getLabel('Intitulé :') }}</label>
+            <input type="text" 
+                   [ngModel]="getDisplayedEditFormation()?.intitule" 
+                   (ngModelChange)="syncTranslatedInput('intitule', $event)" 
+                   name="intitule" 
+                   required>
 
-        <!-- Type -->
-        <label>Type :</label>
-        <input type="text" [(ngModel)]="selectedFormation.type" name="type" required>
+            <!-- Population -->
+            <label>{{ getLabel('Population :') }}</label>
+            <input type="text" 
+                   [ngModel]="getDisplayedEditFormation()?.population" 
+                   (ngModelChange)="syncTranslatedInput('population', $event)" 
+                   name="population">
 
-        <!-- Intitulé -->
-        <label>Intitulé :</label>
-        <input type="text" [(ngModel)]="selectedFormation.intitule" name="intitule" required>
+            <!-- Axe -->
+            <label>{{ getLabel('Axe :') }}</label>
+            <select [(ngModel)]="selectedFormation!.axe" name="axe" required>
+              <option value="Technique">{{ getLabel('Technique') }}</option>
+              <option value="Fonctionnelle">{{ getLabel('Fonctionnel') }}</option>
+              <option value="Métier">{{ getLabel('Métier') }}</option>
+              <option value="Onboarding">{{ getLabel('Onboarding') }}</option>
+              <option value="Solutions">{{ getLabel('Solutions') }}</option>
+              <option value="Linguistique">{{ getLabel('Linguistique') }}</option>
+              <option value="Transversale">{{ getLabel('Transversale') }}</option>
+            </select>
 
-        <!-- Population -->
-        <label>Population :</label>
-        <input type="text" [(ngModel)]="selectedFormation.population" name="population">
+            <!-- Interne / Externe -->
+            <label>{{ getLabel('Interne / Externe :') }}</label>
+            <select [(ngModel)]="selectedFormation!.interne_externe" name="interne_externe">
+              <option value="interne">{{ getLabel('Interne') }}</option>
+              <option value="externe">{{ getLabel('Externe') }}</option>
+            </select>
 
-        <!-- Axe -->
-        <label>Axe :</label>
-        <select [(ngModel)]="selectedFormation.axe" name="axe" required>
-          <option value="Technique">Technique</option>
-          <option value="Fonctionnelle">Fonctionnelle</option>
-          <option value="Métier">Métier</option>
-          <option value="Onboarding">Onboarding</option>
-          <option value="Solutions">Solutions</option>
-          <option value="Linguistique">Linguistique</option>
-          <option value="Transversale">Transversale</option>
-        </select>
+            <!-- EXTERNE -->
+            <div *ngIf="selectedFormation!.interne_externe === 'externe'">
+              <label>{{ getLabel('Prestataire :') }}</label>
+              <input type="text" [(ngModel)]="selectedFormation!.prestataire" name="prestataire">
+            </div>
 
-        <!-- Interne / Externe -->
-        <label>Interne / Externe :</label>
-        <select [(ngModel)]="selectedFormation.interne_externe" name="interne_externe">
-          <option value="interne">Interne</option>
-          <option value="externe">Externe</option>
-        </select>
+            <!-- INTERNE -->
+            <div *ngIf="selectedFormation!.interne_externe === 'interne'">
+              <label>{{ getLabel('Formateur interne :') }}</label>
+              <select [(ngModel)]="selectedFormation!.id_formateur" name="id_formateur">
+                <option value="" disabled selected>{{ getLabel('Sélectionnez un formateur') }}</option>
+                <option *ngFor="let f of formateurs" [value]="f.id_user">
+                  {{ f.nom }} {{ f.prenom }}
+                </option>
+              </select>
+            </div>
 
-        <!-- EXTERNE -->
-        <div *ngIf="selectedFormation.interne_externe === 'externe'">
-          <label>Prestataire :</label>
-          <input type="text" [(ngModel)]="selectedFormation.prestataire" name="prestataire">
-        </div>
+            <!-- Parcours -->
+            <label>{{ getLabel('Parcours :') }}</label>
+            <select [(ngModel)]="selectedFormation!.parcours" name="parcours" required>
+              <option value="">{{ getLabel('Sélectionnez...') }}</option>
+              <option value="Milles">Miles</option>
+              <option value="Cassiope">Cassiopae</option>
+              <option value="E-flo">E-flo</option>
+              <option value="EKIP">EKIP</option>
+              <option value="OnBoarding">OnBoarding</option>
+            </select>
 
-        <!-- INTERNE -->
-        <div *ngIf="selectedFormation.interne_externe === 'interne'">
-          <label>Formateur interne :</label>
-          <select [(ngModel)]="selectedFormation.id_formateur" name="id_formateur">
-            <option value="" disabled selected>Sélectionnez un formateur</option>
-            <option *ngFor="let f of formateurs" [value]="f.id_user">
-              {{ f.nom }} {{ f.prenom }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Parcours -->
-        <label>Parcours :</label>
-        <select [(ngModel)]="selectedFormation.parcours" name="parcours" required>
-          <option value="">Sélectionnez...</option>
-          <option value="Milles">Milles</option>
-          <option value="Cassiope">Cassiope</option>
-          <option value="E-flo">E-flo</option>
-          <option value="EKIP">EKIP</option>
-          <option value="OnBoarding">OnBoarding</option>
-        </select>
-
-        <!-- Pays (multi-select for OnBoarding) -->
-        <div *ngIf="selectedFormation.parcours === 'OnBoarding'" class="form-group">
-          <label>Pays :</label>
-          <div class="checkbox-group">
-            <div *ngFor="let p of paysList" class="checkbox-item">
-              <input
-                type="checkbox"
-                [id]="'pays-' + p.id_pays"
-                [value]="p.id_pays"
-                [checked]="isPaysSelected(p.id_pays)"
-                (change)="togglePays(p.id_pays)"
-              />
-              <label [for]="'pays-' + p.id_pays">{{ p.nom }}</label>
+            <!-- Pays (multi-select for OnBoarding) -->
+            <div *ngIf="selectedFormation!.parcours === 'OnBoarding'" class="form-group">
+              <label>{{ getLabel('Pays :') }}</label>
+              <div class="checkbox-group">
+                <div *ngFor="let p of paysList" class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    [id]="'pays-' + p.id_pays"
+                    [value]="p.id_pays"
+                    [checked]="isPaysSelected(p.id_pays)"
+                    (change)="togglePays(p.id_pays)"
+                  />
+                  <label [for]="'pays-' + p.id_pays">{{ p.nom }}</label>
+                </div>
+              </div>
             </div>
           </div>
+
+          <!-- COLONNE DROITE -->
+          <div class="col">
+            <!-- Durée -->
+            <label>{{ getLabel('Durée :') }}</label>
+            <div class="row">
+              <input type="number" [(ngModel)]="editDureeNumber" name="dureeNumber" min="1" required>
+              <select [(ngModel)]="editDureeUnit" name="dureeUnit" required>
+                <option value="jours">{{ getLabel('Jours') }}</option>
+                <option value="heures">{{ getLabel('Heures') }}</option>
+              </select>
+            </div>
+
+            <!-- Prérequis -->
+            <label>{{ getLabel('Prérequis :') }}</label>
+            <textarea 
+              [ngModel]="getDisplayedEditFormation()?.prerequis" 
+              (ngModelChange)="syncTranslatedInput('prerequis', $event)" 
+              name="prerequis"></textarea>
+
+            <!-- Objectifs -->
+            <label>{{ getLabel('Objectifs :') }}</label>
+            <div *ngFor="let obj of getDisplayedObjectifsInput(); let i = index" class="row">
+              <input type="text" 
+                     [ngModel]="obj" 
+                     (ngModelChange)="syncObjectifInput(i, $event)" 
+                     [name]="'objectif' + i">
+            </div>
+            <button type="button" class="btn-add-small" (click)="addEditObjectifInput()">
+              {{ getLabel('+ Ajouter un objectif') }}
+            </button>
+
+            <!-- Compétences -->
+            <label>{{ getLabel('Compétences :') }}</label>
+            <div *ngFor="let comp of getDisplayedCompetencesInput(); let i = index" class="row">
+              <input type="text" 
+                     [ngModel]="comp" 
+                     (ngModelChange)="syncCompetenceInput(i, $event)" 
+                     [name]="'competence' + i">
+            </div>
+            <button type="button" class="btn-add-small" (click)="addEditCompetenceInput()">
+              {{ getLabel('+ Ajouter une compétence') }}
+            </button>
+
+            <!-- Actions -->
+            <div class="modal-actions full-width">
+              <button type="submit" class="btn-save">{{ getLabel('Mettre à jour') }}</button>
+              <button type="button" class="btn-cancel" (click)="closeUpdateModal()">
+                {{ getLabel('Annuler') }}
+              </button>
+            </div>
+          </div>
+
         </div>
-      </div>
-
-      <!-- COLONNE DROITE -->
-      <div class="col">
-        <!-- Durée -->
-        <label>Durée :</label>
-        <div class="row">
-          <input type="number" [(ngModel)]="editDureeNumber" name="dureeNumber" min="1" required>
-          <select [(ngModel)]="editDureeUnit" name="dureeUnit" required>
-            <option value="jours">Jours</option>
-            <option value="heures">Heures</option>
-          </select>
-        </div>
-
-        <!-- Prérequis -->
-        <label>Prérequis :</label>
-        <textarea [(ngModel)]="selectedFormation.prerequis" name="prerequis"></textarea>
-
-        <!-- Objectifs -->
-        <label>Objectifs :</label>
-        <div *ngFor="let obj of editObjectifsInput; let i = index" class="row">
-          <input type="text" [(ngModel)]="editObjectifsInput[i]" [name]="'objectif' + i">
-        </div>
-        <button type="button" class="btn-add-small" (click)="addEditObjectifInput()">+ Ajouter un objectif</button>
-
-        <!-- Compétences -->
-        <label>Compétences :</label>
-        <div *ngFor="let comp of editCompetencesInput; let i = index" class="row">
-          <input type="text" [(ngModel)]="editCompetencesInput[i]" [name]="'competence' + i">
-        </div>
-        <button type="button" class="btn-add-small" (click)="addEditCompetenceInput()">+ Ajouter une compétence</button>
-
-        <!-- Actions -->
-        <div class="modal-actions full-width">
-         <button type="submit" class="btn-save">Mettre à jour</button>
-
-          <button type="button" class="btn-cancel" (click)="closeUpdateModal()">Annuler</button>
-        </div>
-      </div>
-
+      </form>
     </div>
-  </form>
-</div>
 
   </div>
 </div>
@@ -278,14 +310,18 @@
   <div class="confirm-modal" (click)="$event.stopPropagation()">
     <div class="confirm-modal-header">
       <span class="confirm-icon">⚠️</span>
-      <h3>Confirmer la suppression</h3>
+      <h3>{{ getLabel('Confirmer la suppression') }}</h3>
     </div>
     <div class="confirm-modal-body">
-      Êtes-vous sûr de vouloir supprimer cette formation ? Cette action est irréversible.
+      {{ getLabel('Êtes-vous sûr de vouloir supprimer cette formation ? Cette action est irréversible.') }}
     </div>
     <div class="confirm-modal-actions">
-      <button class="btn btn-cancel" (click)="closeDeleteModal()">Annuler</button>
-      <button class="btn btn-confirm" (click)="confirmDelete()">Supprimer</button>
+      <button class="btn btn-cancel" (click)="closeDeleteModal()">
+        {{ getLabel('Annuler') }}
+      </button>
+      <button class="btn btn-confirm" (click)="confirmDelete()">
+        {{ getLabel('Supprimer') }}
+      </button>
     </div>
   </div>
 </div>

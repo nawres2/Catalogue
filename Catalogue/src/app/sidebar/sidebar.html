@@ -1,79 +1,114 @@
 <aside class="sidebar" [class.closed]="!sidebarOpen">
- 
-  <!-- Header -->
+
+  <!-- ================= HEADER ================= -->
   <div class="sidebar-header">
     <div class="logo-container">
-       <img *ngIf="sidebarOpen"
-       class="logo"
-       src="https://lms.teamwillgroup.com/img/logo.png"
-       alt="Teamwill Logo" />
- 
-  <!-- Logo compact quand sidebar fermé -->
-  <img *ngIf="!sidebarOpen"
-       class="logo"
-       src="https://www.teamwillgroup.com/wp-content/uploads/2022/09/Image2.png"
-       alt="Small Logo" />
+
+      <!-- Logo grand -->
+      <img *ngIf="sidebarOpen"
+           class="logo"
+           src="https://lms.teamwillgroup.com/img/logo.png"
+           alt="Teamwill Logo" />
+
+      <!-- Logo compact -->
+      <img *ngIf="!sidebarOpen"
+           class="logo"
+           src="https://www.teamwillgroup.com/wp-content/uploads/2022/09/Image2.png"
+           alt="Small Logo" />
+
       <h2 *ngIf="sidebarOpen" class="brand"></h2>
     </div>
- 
-<button class="btn-close" (click)="toggle()">
-  <!-- Image quand sidebar est ouverte -->
-  <img *ngIf="sidebarOpen"
-       style="width: 70px; height: 70px;"
-       src="../../assets/icon menu_ferme.png" 
-       alt="Fermer">
 
-  <!-- Image quand sidebar est fermée -->
-  <img *ngIf="!sidebarOpen"
-       style="width: 70px; height: 70px;"
-       src="../../assets/icon menu_ouvert.png" 
-       alt="Ouvrir">
-</button>
- </div>
+    <button class="btn-close" (click)="toggle()">
+
+      <img *ngIf="sidebarOpen"
+           style="width: 70px; height: 70px;"
+           src="../../assets/icon menu_ferme.png"
+           alt="Fermer">
+
+      <img *ngIf="!sidebarOpen"
+           style="width: 70px; height: 70px;"
+           src="../../assets/icon menu_ouvert.png"
+           alt="Ouvrir">
+    </button>
+  </div>
+
+  <!-- ================= MENU ================= -->
   <nav class="menu">
- 
-    <a routerLink="/catalogue"  routerLinkActive="active">
-      <i class="icon"><img style="height: 25px; width: 25px;"  src="https://cdn-icons-png.flaticon.com/512/3486/3486568.png"></i>
-      <span *ngIf="sidebarOpen">Catalogue</span>
-    </a>
- 
-    <a routerLink="/formation" *ngIf="isAdmin()"  routerLinkActive="active">
-      <i class="icon"><img style="height: 30px; width: 30px;"  src="https://cdn-icons-png.flaticon.com/512/4192/4192781.png"></i>
-      <span *ngIf="sidebarOpen">Formations</span>
-    </a>
-  <a routerLink="/users" *ngIf="isAdmin()" routerLinkActive="active">
-      <i class="icon"><img style="height: 20px; width: 20px;"  src="../../assets/user_icon.png"></i>
-      <span *ngIf="sidebarOpen">Utilisateurs</span>
-    </a>
-    <a routerLink="/formation_demande"  *ngIf="isAdmin()" routerLinkActive="active">
-      <i class="icon"><img style="height: 20px; width: 20px;"  src="https://cdn-icons-png.flaticon.com/512/2516/2516759.png"></i>
-      <span *ngIf="sidebarOpen">Formations en attente</span>
-    </a>
-       <a routerLink="/formateur" *ngIf="isFormateur()" routerLinkActive="active">
-      <i class="icon"><img style="height: 30px; width: 30px;"  src="../../assets/formulaire.png"></i>
-      <span *ngIf="sidebarOpen">Formulaire</span>
-    </a>
-       <a routerLink="/historique" *ngIf="isFormateur()" routerLinkActive="active">
-      <i class="icon"><img style="height: 20px; width: 20px;"  src="https://cdn-icons-png.flaticon.com/512/61/61122.png"></i>
-      <span *ngIf="sidebarOpen">Historique</span>
-    </a>
- 
-    
 
-    
+    <a routerLink="/catalogue" routerLinkActive="active">
+      <i class="icon">
+        <img style="height: 25px; width: 25px;"
+             src="https://cdn-icons-png.flaticon.com/512/3486/3486568.png">
+      </i>
+      <span *ngIf="sidebarOpen">{{ ui.catalogue }}</span>
+    </a>
 
+    <a routerLink="/formation" *ngIf="isAdmin()" routerLinkActive="active">
+      <i class="icon">
+        <img style="height: 30px; width: 30px;"
+             src="https://cdn-icons-png.flaticon.com/512/4192/4192781.png">
+      </i>
+      <span *ngIf="sidebarOpen">{{ ui.formations }}</span>
+    </a>
+
+    <a routerLink="/users" *ngIf="isAdmin()" routerLinkActive="active">
+      <i class="icon">
+        <img style="height: 20px; width: 20px;"
+             src="../../assets/user_icon.png">
+      </i>
+      <span *ngIf="sidebarOpen">{{ ui.users }}</span>
+    </a>
+
+    <a routerLink="/formation_demande" *ngIf="isAdmin()" routerLinkActive="active">
+      <i class="icon">
+        <img style="height: 20px; width: 20px;"
+             src="https://cdn-icons-png.flaticon.com/512/2516/2516759.png">
+      </i>
+      <span *ngIf="sidebarOpen">{{ ui.pending }}</span>
+    </a>
+
+    <a routerLink="/formateur" *ngIf="isFormateur()" routerLinkActive="active">
+      <i class="icon">
+        <img style="height: 30px; width: 30px;"
+             src="../../assets/formulaire.png">
+      </i>
+      <span *ngIf="sidebarOpen">{{ ui.form }}</span>
+    </a>
+
+    <a routerLink="/historique" *ngIf="isFormateur()" routerLinkActive="active">
+      <i class="icon">
+        <img style="height: 20px; width: 20px;"
+             src="https://cdn-icons-png.flaticon.com/512/61/61122.png">
+      </i>
+      <span *ngIf="sidebarOpen">{{ ui.history }}</span>
+    </a>
     
-   
+    <a routerLink="/Onboarding" *ngIf="isFormateur()" routerLinkActive="active">
+      <i class="icon">
+        <img style="height: 20px; width: 20px;"
+             src="https://cdn-icons-png.flaticon.com/512/4923/4923201.png">
+      </i>
+      <span *ngIf="sidebarOpen">{{ ui.onboarding }}</span>
+    </a>
+    
+    <a routerLink="/Onboarding" *ngIf="isAdmin()" routerLinkActive="active">
+      <i class="icon">
+        <img style="height: 20px; width: 20px;"
+             src="https://cdn-icons-png.flaticon.com/512/4923/4923201.png">
+      </i>
+      <span *ngIf="sidebarOpen">{{ ui.onboarding }}</span>
+    </a>
  
-<a (click)="logout()" class="logout-button">
-  <i class="icon">
-    <img style="height: 20px; width: 20px;" src="https://cdn-icons-png.flaticon.com/512/876/876779.png">
-  </i>
-  <span *ngIf="sidebarOpen">Déconnexion</span>
-</a>
-
-  
+    <!-- ================= LOGOUT ================= -->
+    <a (click)="logout()" class="logout-button">
+      <i class="icon">
+        <img style="height: 20px; width: 20px;"
+             src="https://cdn-icons-png.flaticon.com/512/876/876779.png">
+      </i>
+      <span *ngIf="sidebarOpen">{{ ui.logout }}</span>
+    </a>
 
   </nav>
- 
+
 </aside>

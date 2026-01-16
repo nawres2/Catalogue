@@ -6,7 +6,8 @@ import { db } from '../db.js';  // <-- Ajoute cette ligne
 
 
 const router = express.Router();
- 
+ router.get("/download", downloadExcel);
+
 router.get('/formations', getFormations);
 
 router.get("/formation/:id", getFormationById);
@@ -19,7 +20,6 @@ router.get('/objectifs', getObjectifs);
 router.post('/objectif', addObjectif);
 router.get('/competences', getCompetences);
 router.post('/competence', addCompetence);
-router.get("/download", downloadExcel);
 router.post('/FormationAttent', addFormationFor);
 router.get(
   '/formations/formateur',

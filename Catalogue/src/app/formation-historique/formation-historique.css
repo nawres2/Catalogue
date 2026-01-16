@@ -907,3 +907,33 @@
 
 /* ANIMATIONS */
 @keyframes slideIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+.modal-info-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+
+  /* Fond vert clair, doux */
+  background: linear-gradient(135deg, #EEF4E3 0%, #DCE8C6 100%);
+
+  /* Accent à gauche */
+  border-left: 4px solid #7A9726;
+
+  border-radius: 8px;
+
+  /* Texte */
+  color: #5F751D;
+  font-size: 14px;
+  font-weight: 500;
+
+  margin-top: 20px;
+
+  /* Ombre discrète verte */
+  box-shadow: 0 2px 8px rgba(122, 151, 38, 0.25);
+}
+
+.info-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  color: #7A9726;
+}
